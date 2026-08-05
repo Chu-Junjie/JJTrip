@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563EB" />
+  <title>JJTrip · 你的旅行搭子</title>
+  <link rel="icon" type="image/png" href="assets/jjtrip-app-icon.png" />
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root{
+      --bg:#f5f8fc;--panel:#fff;--ink:#374151;--muted:#667085;--line:#e5e7eb;
+      --accent:#2563EB;--accent-soft:#EAF2FF;--blue:#60A5FA;--orange:#FB923C;--yellow:#FACC15;--green:#138a5b;
+      --shadow:0 16px 45px rgba(22,29,42,.13);--radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif}
+    button,input,textarea,select{font:inherit}button{cursor:pointer}
+    button:disabled,input:disabled,textarea:disabled,select:disabled{cursor:not-allowed;opacity:.62}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;z-index:1500;display:flex;align-items:center;gap:10px;padding:11px 16px;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    .brand-logo-wrap{display:flex;align-items:center;flex:0 0 auto;text-decoration:none}
+    .brand-logo{display:block;width:168px;height:50px;object-fit:contain;object-position:left center;border-radius:10px}
+    .mascot-trigger{position:relative;width:52px;height:52px;padding:0;border:2px solid #dbeafe;border-radius:17px;background:#fff;overflow:hidden;box-shadow:0 8px 22px rgba(37,99,235,.16);transition:.2s}
+    .mascot-trigger:hover{transform:translateY(-2px);border-color:var(--accent)}
+    .mascot-trigger img{width:100%;height:100%;object-fit:cover;object-position:center 18%}
+    .mascot-lock-badge{position:absolute;right:-2px;bottom:-2px;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#111827;color:#fff;border:2px solid #fff;font-size:11px}
+    .mascot-trigger.unlocked .mascot-lock-badge{background:#12b76a}
+    .settings-hero{display:grid;grid-template-columns:120px 1fr;gap:15px;align-items:center;margin:12px 0 18px;padding:14px;border:1px solid #dbeafe;border-radius:20px;background:linear-gradient(135deg,#f8fbff,#fff7ed)}
+    .settings-hero-mascot{width:120px;height:155px;object-fit:cover;object-position:center top;border-radius:17px;background:#fff}
+    .settings-hero-logo{width:190px;max-width:100%;display:block;margin-bottom:6px}
+    .settings-hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+    .lock-card{border:1px solid #dbeafe;border-radius:18px;padding:14px;background:#f8fbff;margin:10px 0 18px}
+    .lock-state{display:flex;align-items:center;gap:10px;font-weight:900;margin-bottom:10px}
+    .lock-state .state-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#111827;color:#fff;font-size:18px}
+    .lock-state.unlocked .state-icon{background:#12b76a}
+    .lock-state small{display:block;margin-top:3px;color:var(--muted);font-weight:600;line-height:1.45}
+    .lock-inline{display:flex;gap:8px;align-items:flex-end}.lock-inline .field{flex:1;margin:0}
+    [hidden]{display:none!important}
+    .city-pill,.btn,.btn-primary,.btn-danger,.btn-lock{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:13px;padding:9px 12px;font-weight:800}
+    .city-pill{background:#111827;color:#fff;border-color:#111827;border-radius:999px}
+    .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-danger{color:#b42318}.btn-lock.locked{background:#111827;color:#fff;border-color:#111827}.btn-lock.unlocked{background:#e8fff5;color:#08764b;border-color:#9ee6c8}
+    .small{font-size:12px;padding:7px 9px}.spacer{flex:1}.hide-mobile{display:inline-flex}
+    .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#98a2b3;margin-right:5px}.status-dot.live{background:#12b76a}
+    main{padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:14px;min-height:0}
+    .workspace{min-width:0;display:grid;grid-template-rows:minmax(500px,65vh) auto;gap:14px}
+    .map-wrap{position:relative;overflow:hidden;border-radius:var(--radius);background:#dbe3ec;box-shadow:var(--shadow)}
+    #map{height:100%;min-height:500px}
+    .map-toolbar{position:absolute;z-index:700;left:13px;right:13px;top:13px;display:flex;gap:8px;align-items:flex-start;pointer-events:none}
+    .search-card,.filter-card,.map-note{pointer-events:auto;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border:1px solid rgba(227,231,237,.9);box-shadow:0 10px 28px rgba(0,0,0,.13);border-radius:16px}
+    .search-card{padding:9px;display:flex;gap:7px;align-items:center;min-width:min(420px,55vw)}.search-card input{border:0;outline:0;background:transparent;width:100%;font-weight:700}
+    .filter-card{display:flex;gap:5px;flex-wrap:wrap;padding:7px;max-width:52vw}.filter-chip{border:0;background:#f2f4f7;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800}.filter-chip.active{background:#111827;color:#fff}
+    .map-note{position:absolute;z-index:700;left:13px;bottom:13px;padding:8px 10px;font-size:11px;color:var(--muted)}
+    .mobile-add{display:none;position:absolute;z-index:780;right:13px;top:13px;width:42px;height:42px;border:0;border-radius:14px;background:var(--accent);color:#fff;font-size:23px;font-weight:900;box-shadow:0 10px 25px rgba(0,0,0,.18)}
+    .add-mode{position:absolute;z-index:750;top:78px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;border-radius:999px;padding:9px 14px;font-weight:800;box-shadow:var(--shadow);display:none}.add-mode.show{display:block}
+    aside{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px;overflow:auto;max-height:calc(100vh - 92px);position:sticky;top:76px}
+    .empty{color:var(--muted);padding:48px 14px;text-align:center;line-height:1.8}
+    .place-head{display:flex;gap:12px;align-items:flex-start}.place-emoji{width:48px;height:48px;border-radius:15px;background:var(--accent-soft);display:grid;place-items:center;font-size:25px;flex:0 0 auto}.place-head h2{font-size:20px;margin:2px 0 4px}.sub{font-size:12px;color:var(--muted)}
+    .read-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.read-item{background:#f7f8fa;padding:10px;border-radius:12px}.read-item b{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.read-item span{font-size:13px;font-weight:750}
+    .description{font-size:13px;line-height:1.7;color:#475467;white-space:pre-wrap}.section-title{font-size:13px;font-weight:900;margin:17px 0 8px}
+    .preview{width:100%;aspect-ratio:16/9;border-radius:15px;object-fit:cover;background:linear-gradient(135deg,#dbe7f3,#ffe0d7);border:1px solid var(--line);margin-top:12px}
+    .field{margin:10px 0}.field label{display:block;font-size:12px;font-weight:850;color:#344054;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:#fbfcfe;border-radius:11px;padding:10px}.field textarea{min-height:82px;resize:vertical}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.lock-tip{font-size:12px;color:#6941c6;background:#f4f0ff;padding:10px 12px;border-radius:12px;line-height:1.55}
+    .route-wrap{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;overflow:hidden}
+    .route-head{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.route-head h2{font-size:17px;margin:0}.route-stats{font-size:12px;color:var(--muted)}
+    .timeline{display:flex;align-items:stretch;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px}.timeline::-webkit-scrollbar{height:8px}.timeline::-webkit-scrollbar-thumb{background:#cad1db;border-radius:20px}
+    .route-empty{min-height:145px;width:100%;display:grid;place-items:center;color:var(--muted);text-align:center;border:1px dashed #cbd3df;border-radius:17px;line-height:1.7}
+    .node{min-width:235px;max-width:235px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px;scroll-snap-align:start;position:relative;transition:.2s}.node:hover,.node.active{border-color:var(--accent);box-shadow:0 10px 24px rgba(37,99,235,.16);transform:translateY(-2px)}
+    .node-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#f2f4f7;font-weight:850}.route-no{font-size:12px;font-weight:950;color:var(--accent)}.node h3{margin:10px 0 5px;font-size:16px}.node p{font-size:12px;color:var(--muted);line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.node-actions{display:flex;gap:5px;margin-top:10px}.node-actions button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:4px 7px;font-size:11px}
+    .edge{min-width:126px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center;padding:0 8px}.edge b{color:#344054}.edge-line{width:100%;height:2px;background:linear-gradient(90deg,var(--accent),#93c5fd);position:relative;margin:8px 0}.edge-line:after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid #93c5fd;border-top:5px solid transparent;border-bottom:5px solid transparent}.edge.editable:hover{color:var(--accent)}
+    .poi-marker{display:flex;align-items:center;gap:5px;background:#fff;border:2px solid #fff;border-radius:999px;padding:4px 8px 4px 5px;box-shadow:0 6px 18px rgba(0,0,0,.24);font-size:12px;font-weight:850;white-space:nowrap;color:#1d2939}.poi-marker .emoji{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#eaf2ff;font-size:17px}.poi-marker.in-route{border-color:var(--accent)}.poi-marker .route-index{position:absolute;left:-6px;top:-8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:10px;border:2px solid #fff}.poi-marker.compact .name{display:none}.poi-marker.compact{padding:3px}.poi-marker.locked:after{content:"🔒";position:absolute;right:-5px;bottom:-7px;font-size:10px}
+    .leaflet-div-icon{background:transparent!important;border:0!important}.leaflet-tooltip{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-weight:800}
+    .modal-backdrop,.settings{position:fixed;inset:0;z-index:3000;background:rgba(17,24,39,.48);display:none;align-items:center;justify-content:center;padding:16px}.modal-backdrop.open,.settings.open{display:flex}.modal{width:min(470px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:22px;padding:20px;box-shadow:0 30px 90px rgba(0,0,0,.24)}.modal h2{margin:0 0 6px}.modal p{color:var(--muted);font-size:12px;line-height:1.6}.error{color:#b42318;font-size:12px;min-height:18px}
+    .settings{justify-content:flex-end;padding:0}.drawer{width:min(460px,95vw);height:100%;background:#fff;padding:20px;overflow:auto;box-shadow:-20px 0 60px rgba(0,0,0,.18)}.drawer-head{display:flex;align-items:center;justify-content:space-between}.hint{font-size:12px;line-height:1.65;color:var(--muted);background:#f7f8fa;padding:12px;border-radius:12px}.city-list{display:grid;gap:8px;margin:14px 0}.city-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px}.city-item.current{border-color:var(--accent);background:var(--accent-soft)}
+    .toast{position:fixed;z-index:5000;left:50%;bottom:22px;transform:translate(-50%,20px);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:750;opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    footer{padding:11px 16px;text-align:center;color:var(--muted);font-size:11px}
+    @media(max-width:980px){
+      main{display:block;padding:9px}.workspace{grid-template-rows:58vh auto}.map-wrap{border-radius:18px}#map{min-height:58vh}.map-toolbar{display:block}.search-card{min-width:0;width:calc(100% - 80px)}.filter-card{margin-top:7px;max-width:calc(100% - 42px);overflow-x:auto;flex-wrap:nowrap}.map-note{display:none}
+      .mobile-add{display:block}.search-card{padding-right:48px}
+      aside{position:fixed;z-index:1900;left:8px;right:8px;bottom:8px;top:auto;max-height:68vh;display:none;border-radius:22px}aside.mobile-open{display:block}.node{min-width:78vw;max-width:78vw}.edge{min-width:106px}.hide-mobile{display:none}.brand-logo{width:118px;height:42px}.mascot-trigger{width:44px;height:44px;border-radius:14px}.settings-hero{grid-template-columns:94px 1fr}.settings-hero-mascot{width:94px;height:128px}header{padding:9px}.city-pill{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <a class="brand-logo-wrap" href="#" aria-label="JJTrip 首页" onclick="event.preventDefault()">
+      <img class="brand-logo" src="assets/jjtrip-logo.png" alt="JJTrip">
+    </a>
+    <button class="city-pill" id="cityButton">香港 ⌄</button>
+    <div class="spacer"></div>
+    <button class="btn small hide-mobile" id="fitBtn">查看全部地点</button>
+    <button class="btn small hide-mobile" id="addPlaceBtn">＋ 地图新增</button>
+    <button class="mascot-trigger" id="mascotSettingsBtn" aria-label="点击旅行搭子打开设置" title="点击旅行搭子打开设置">
+      <img src="assets/jjtrip-mascot-button.png" alt="JJTrip 吉祥物">
+      <span class="mascot-lock-badge" id="mascotLockBadge">🔒</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="workspace">
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="map-toolbar">
+          <div class="search-card"><span>🔎</span><input id="searchInput" placeholder="搜索景点、餐厅、小吃、机位……"></div>
+          <div class="filter-card" id="filterBar"></div>
+        </div>
+        <button class="mobile-add" id="mobileAddPlaceBtn" aria-label="新增地点">＋</button>
+        <div class="add-mode" id="addModeTip">请点击地图放置新地点 · 再点按钮可取消</div>
+        <div class="map-note"><span class="status-dot live"></span><span id="mapProviderText">高德中文底图</span> · 地图标记锁定时不可拖动</div>
+      </div>
+
+      <section class="route-wrap">
+        <div class="route-head">
+          <h2>🧭 自规划路线导图</h2>
+          <span class="route-stats" id="routeStats">尚未规划路线</span>
+          <div class="spacer"></div>
+          <button class="btn small" id="clearRouteBtn">清空路线</button>
+          <button class="btn-primary small" id="saveVersionBtn">保存版本</button>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </section>
+    </section>
+
+    <aside id="detailPanel"><div class="empty">点击地图上的地点查看资料。<br>🔒 默认锁定。点击右上角吉祥物进入设置后解锁。</div></aside>
+  </main>
+
+  <footer>地点、营业时间、费用和交通数据是可编辑的MVP种子资料；实际出行前请通过官方渠道复核。</footer>
+</div>
+
+<div class="settings" id="settingsModal"><div class="drawer">
+  <div class="drawer-head"><h2>旅行搭子设置</h2><button class="btn" id="closeSettings">✕</button></div>
+
+  <div class="settings-hero">
+    <img class="settings-hero-mascot" src="assets/jjtrip-mascot.png" alt="JJTrip 旅行搭子">
+    <div>
+      <img class="settings-hero-logo" src="assets/jjtrip-logo.png" alt="JJTrip">
+      <p>点击右上角旅行搭子即可进入这里。城市切换、编辑锁、地图和存档统一放在设置中。</p>
+    </div>
+  </div>
+
+  <h3>🔐 编辑锁</h3>
+  <div class="lock-card">
+    <div class="lock-state" id="lockState">
+      <span class="state-icon">🔒</span>
+      <div><span id="lockStateTitle">日常锁定中</span><small id="lockStateText">可正常浏览，但不能修改地点、路线或存档。</small></div>
+    </div>
+    <div id="lockedControls">
+      <div class="lock-inline">
+        <div class="field"><label>编辑密码</label><input id="passwordInput" type="password" inputmode="numeric" autocomplete="off" placeholder="请输入密码"></div>
+        <button class="btn-primary" id="confirmUnlock">解锁</button>
+      </div>
+      <div class="error" id="passwordError"></div>
+    </div>
+    <div id="unlockedControls" hidden>
+      <button class="btn-lock unlocked" id="lockNowBtn">🔒 完成修改并立即锁定</button>
+    </div>
+  </div>
+  <p class="hint">默认密码：123456。此功能仅防止日常误触，不是账号级安全验证；刷新页面后会自动恢复锁定。</p>
+
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <p class="hint">主页面一次只显示一个城市。切换城市后，地图地点库、自规划路线和版本存档会同步切换。</p>
+  <h3>切换城市</h3>
+  <div class="city-list" id="cityList"></div>
+  <div class="actions"><button class="btn" id="addCityBtn">＋ 新增城市</button></div>
+
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <h3>当前城市资料</h3>
+  <div class="field"><label>城市名称</label><input id="cityNameInput"></div>
+  <div class="field"><label>城市说明</label><textarea id="citySummaryInput"></textarea></div>
+  <div class="actions"><button class="btn-primary" id="saveCityInfoBtn">保存城市资料</button></div>
+
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <h3>地图</h3>
+  <div class="field"><label>底图来源</label><select id="mapLayerSelect"><option value="amap">高德中文地图（临时瓦片版）</option><option value="osm">OpenStreetMap 备用</option></select></div>
+  <p class="hint">下一阶段再接入正式高德 JS API。当前仍保留临时底图与备用地图，方便先确认品牌和交互。</p>
+
+  <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+  <h3>数据与存档</h3>
+  <div class="actions">
+    <button class="btn-primary" id="exportBtn">导出JSON</button>
+    <label class="btn" style="cursor:pointer">导入JSON<input id="importInput" type="file" accept="application/json" hidden></label>
+    <button class="btn-danger btn" id="resetBtn">恢复初始数据</button>
+  </div>
+  <div class="field"><label>版本存档</label><select id="versionSelect"><option value="">选择已保存版本</option></select></div>
+  <div class="actions"><button class="btn" id="restoreVersionBtn">恢复所选版本</button></div>
+</div></div>
+
+<div class="modal-backdrop" id="segmentModal"><div class="modal">
+  <h2>编辑交通段</h2>
+  <p id="segmentTitle"></p>
+  <div class="field"><label>交通方式</label><select id="segmentMode"><option>步行</option><option>公交</option><option>地铁</option><option>港铁</option><option>轮渡</option><option>叮叮车</option><option>出租车/网约车</option><option>骑行</option><option>自定义</option></select></div>
+  <div class="grid2"><div class="field"><label>交通时间（分钟）</label><input id="segmentMinutes" type="number" min="0"></div><div class="field"><label>距离（公里）</label><input id="segmentKm" type="number" min="0" step="0.1"></div></div>
+  <div class="field"><label>线路、车站或备注</label><textarea id="segmentNote"></textarea></div>
+  <div class="actions"><button class="btn-primary" id="saveSegment">保存</button><button class="btn" id="cancelSegment">取消</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const TYPE_CONFIG = {
+  "景点":{emoji:"🏛️",color:"#fce7d6"},"餐厅":{emoji:"🍽️",color:"#ffe4e6"},"小吃":{emoji:"🥟",color:"#fff1c9"},
+  "拍照机位":{emoji:"📸",color:"#e8e3ff"},"公园":{emoji:"🌳",color:"#dcfce7"},"咖啡":{emoji:"☕",color:"#f4e3d7"},
+  "购物":{emoji:"🛍️",color:"#fce7f3"},"交通站点":{emoji:"🚉",color:"#dbeafe"},"博物馆":{emoji:"🖼️",color:"#e0f2fe"},
+  "夜景":{emoji:"🌃",color:"#e0e7ff"},"其他":{emoji:"📍",color:"#eef2f7"}
+};
+const OFFICIAL = {
+  hk:"https://www.discoverhongkong.cn/",sg:"https://www.visitsingapore.com.cn/",sz:"https://www.sz.gov.cn/",mo:"https://www.macaotourism.gov.mo/zh-hans/",kl:"https://www.malaysia.travel/"
+};
+function poi(id,name,type,lat,lng,note="",hours="待补充",price="",address="",photoTip="",source="",emoji=""){
+  return {id,name,type,lat,lng,note,hours,price,address,photoTip,source,image:"",emoji,tags:[]};
+}
+function city(name,center,zoom,summary,coord,places){return{name,center,zoom,summary,coord,places,route:[],segments:{}}}
+const SEED={
+  meta:{app:"JJTrip",version:3,updated:"2026-08-05"},currentCity:"hongkong",settings:{mapLayer:"amap"},versions:[],cities:{
+    hongkong:city("香港",[22.294,114.163],13,"港岛街区、维港、西九龙、老香港美食与拍照机位地点库。", "gcj02",[
+      poi("hk_peak","太平山顶","景点",22.2770,114.1436,"俯瞰维港与港岛天际线的经典地点。","开放情况需复核","","山顶道","傍晚至蓝调时刻适合城市夜景。",OFFICIAL.hk),
+      poi("hk_peaktram","山顶缆车中环总站","交通站点",22.2777,114.1591,"前往太平山的经典交通节点。","班次与票价需复核","","花园道33号","建筑与缆车同框。",OFFICIAL.hk),
+      poi("hk_taikwun","大馆","景点",22.2814,114.1542,"历史建筑群、展览与中环街景。","开放时间需复核","","荷李活道10号","监狱操场、连廊和旧警署立面。","https://www.taikwun.hk/zh/"),
+      poi("hk_pmq","PMQ元创方","景点",22.2830,114.1512,"设计店铺、展览与旧宿舍建筑。","开放时间需复核","","鸭巴甸街35号","中庭楼梯和建筑对称构图。",OFFICIAL.hk),
+      poi("hk_centralmarket","中环街市","景点",22.2847,114.1558,"室内历史建筑、休息和餐饮候选。","10:00–22:00（复核）","","皇后大道中93号","扶梯、中庭和霓虹装置。","https://www.centralmarket.hk/"),
+      poi("hk_graham","嘉咸街壁画","拍照机位",22.2825,114.1518,"中环高密度街区中的热门壁画机位。","全天","","荷李活道与嘉咸街一带","建议早到，避开车辆和排队人群。",OFFICIAL.hk),
+      poi("hk_lanfong","兰芳园（中环）","餐厅",22.2827,114.1530,"港式奶茶、猪扒包和茶餐厅体验候选。","营业时间需复核","HK$","结志街2号","店面与巷道可拍老香港氛围。",OFFICIAL.hk),
+      poi("hk_saiyingpun","西营盘艺里坊","拍照机位",22.2863,114.1422,"壁画、斜坡街道与旧区街景。","全天","","西营盘一带","利用斜坡和楼宇压缩感构图。",OFFICIAL.hk),
+      poi("hk_kennedy","坚尼地城篮球场机位","拍照机位",22.2815,114.1283,"海景、叮叮车和城市纵深热门机位。","全天","","科士街临时游乐场附近","长焦压缩道路与海面；注意球场使用者。","https://www.discoverhongkong.cn/neighbourhoods/central-and-western-district/how-to-spend-your-day-in-kennedy-town.html"),
+      poi("hk_starferry","中环天星码头","交通站点",22.2877,114.1591,"乘天星小轮横渡维港。","班次需复核","HK$","民光街","码头长廊可拍维港和摩天轮。","https://www.starferry.com.hk/"),
+      poi("hk_clocktower","尖沙咀钟楼","拍照机位",22.2934,114.1695,"钟楼与维港的经典地标机位。","全天","","梳士巴利道","低机位拍钟楼，转身拍港岛天际线。",OFFICIAL.hk),
+      poi("hk_aos","星光大道","景点",22.2930,114.1743,"维港海滨步行与香港电影主题景点。","全天","","尖沙咀海滨","日落、蓝调和每晚灯光秀前后适合拍摄。","https://www.avenueofstars.com.hk/"),
+      poi("hk_k11","K11 MUSEA海旁","拍照机位",22.2931,114.1749,"现代建筑、海滨与夜景拍摄区域。","商场时间需复核","","梳士巴利道18号","金色外立面、旋转楼梯和海旁夜景。","https://www.k11musea.com/"),
+      poi("hk_mplus","M+","博物馆",22.3010,114.1590,"西九龙文化区视觉文化博物馆。","开放与休馆日需复核","HK$","博物馆道38号","平台可拍港岛天际线与日落。","https://www.mplus.org.hk/sc/"),
+      poi("hk_artpark","西九艺术公园","公园",22.3005,114.1567,"草地、海滨和日落休闲地点。","全天","","西九龙文化区","草地前景配合维港落日。","https://www.westk.hk/sc/"),
+      poi("hk_australia","澳洲牛奶公司","餐厅",22.3047,114.1712,"炒蛋多士、炖奶等港式快节奏餐厅候选。","营业时间及休息日需复核","HK$","佐敦白加士街47号","更适合记录用餐，不建议影响店内通行。",OFFICIAL.hk),
+      poi("hk_templestreet","庙街夜市","小吃",22.3067,114.1697,"夜市、小吃、街头招牌与老香港氛围。","傍晚后较活跃","HK$","油麻地庙街","雨后霓虹、街牌和摊档纵深。",OFFICIAL.hk),
+      poi("hk_hopyik","合益泰小食","小吃",22.3305,114.1607,"深水埗肠粉小吃候选。","营业时间需复核","HK$","桂林街121号","店面空间紧凑，以用餐为主。","https://www.discoverhongkong.cn/neighbourhoods/sham-shui-po.html")
+    ]),
+    singapore:city("新加坡",[1.2926,103.8535],13,"滨海湾、多元文化街区、小贩中心和城市建筑机位地点库。","wgs84",[
+      poi("sg_merlion","鱼尾狮公园","景点",1.2868,103.8545,"新加坡地标与滨海湾经典视角。","全天","","One Fullerton","广角拍鱼尾狮与金沙；清晨人少。",OFFICIAL.sg),
+      poi("sg_esplanade","滨海艺术中心桥位","拍照机位",1.2880,103.8540,"隔水拍金沙、鱼尾狮和滨海湾天际线。","全天","","Esplanade Bridge","蓝调时刻适合长曝光。",OFFICIAL.sg),
+      poi("sg_mbs","金沙活动广场","拍照机位",1.2838,103.8591,"滨海湾步道与金融区倒影视角。","全天","","Bayfront Avenue","水边拍金融区，晚上可结合灯光秀。",OFFICIAL.sg),
+      poi("sg_gardens","滨海湾花园","景点",1.2816,103.8636,"花穹、云雾林和户外花园。","开放及票务需复核","SGD","18 Marina Gardens Drive","白天拍建筑，晚上拍超级树灯光。","https://www.gardensbythebay.com.sg/"),
+      poi("sg_supertree","超级树丛林","夜景",1.2819,103.8636,"滨海湾花园夜间代表性景观。","灯光秀时间需复核","","Supertree Grove","躺拍或使用超广角仰拍树冠。","https://www.gardensbythebay.com.sg/"),
+      poi("sg_fortcanning","福康宁树洞","拍照机位",1.2945,103.8464,"螺旋楼梯与树冠圆形构图热门机位。","公园开放时间需复核","","Fort Canning Park","早到避开排队；从底部向上仰拍。",OFFICIAL.sg),
+      poi("sg_oldhill","旧禧街警察局","拍照机位",1.2907,103.8483,"彩色百叶窗建筑地标。","外观全天","","140 Hill Street","对街广角拍完整立面，注意交通。",OFFICIAL.sg),
+      poi("sg_gallery","新加坡国家美术馆","博物馆",1.2903,103.8519,"东南亚艺术收藏与历史建筑。","开放时间需复核","SGD","1 St Andrew's Road","中庭、楼梯和屋顶视角。","https://www.nationalgallery.sg/"),
+      poi("sg_buddha","佛牙寺龙华院","景点",1.2815,103.8443,"牛车水地标寺院。","开放时间需复核","","288 South Bridge Road","对街拍红色建筑立面。",OFFICIAL.sg),
+      poi("sg_maxwell","麦士威熟食中心","小吃",1.2804,103.8441,"海南鸡饭、粥品和本地小贩美食集中地。","摊位时间不同","SGD","1 Kadayanallur Street","以用餐记录为主。",OFFICIAL.sg),
+      poi("sg_yakun","亚坤咖椰吐司（远东广场）","餐厅",1.2837,103.8485,"咖椰吐司、半熟蛋和咖啡早餐候选。","营业时间需复核","SGD","18 China Street","老店氛围，避免高峰期久占座位。",OFFICIAL.sg),
+      poi("sg_songfa","松发肉骨茶（克拉码头）","餐厅",1.2894,103.8472,"胡椒汤肉骨茶候选。","营业时间需复核","SGD","11 New Bridge Road","用餐为主。",OFFICIAL.sg),
+      poi("sg_sultan","苏丹回教堂","景点",1.3023,103.8590,"甘榜格南地标建筑。","参观时间与礼仪需复核","","3 Muscat Street","从Bussorah Street正中构图金色圆顶。",OFFICIAL.sg),
+      poi("sg_haji","哈芝巷","拍照机位",1.3007,103.8598,"彩色店屋、壁画与小店街区。","店铺时间不同","","Haji Lane","上午较空；避免挡住商户入口。",OFFICIAL.sg),
+      poi("sg_tenteng","陈东龄故居","拍照机位",1.3065,103.8490,"小印度彩色中式别墅。","外观全天","","37 Kerbau Road","从街对面拍完整彩色立面。",OFFICIAL.sg),
+      poi("sg_tekka","竹脚中心","小吃",1.3065,103.8506,"印度与本地小贩美食、市场。","摊位时间不同","SGD","665 Buffalo Road","市场色彩丰富，注意摊贩和顾客隐私。",OFFICIAL.sg),
+      poi("sg_tiong","中峇鲁巴刹","小吃",1.2852,103.8322,"传统市场与熟食中心。","摊位时间不同","SGD","30 Seng Poh Road","周边装饰艺术风格住宅适合街拍。",OFFICIAL.sg),
+      poi("sg_jewel","星耀樟宜雨漩涡","景点",1.3602,103.9897,"机场室内瀑布与花园。","开放时间需复核","","78 Airport Boulevard","高层环廊拍瀑布全景，夜间灯光更明显。","https://www.jewelchangiairport.com/")
+    ]),
+    shenzhen:city("深圳",[22.5435,114.0579],12,"现代城市地标、滨海公园、创意街区、古城与深圳美食地点库。","gcj02",[
+      poi("sz_civic","深圳市民中心","景点",22.5431,114.0579,"深圳中心区城市地标。","外部全天","","福中三路","中轴线、屋顶和夜间灯光构图。",OFFICIAL.sz),
+      poi("sz_lianhua","莲花山公园","公园",22.5537,114.0596,"登高俯瞰福田中心区。","开放时间需复核","","红荔路6030号","山顶广场正对市民中心中轴线。","https://cgj.sz.gov.cn/xsmh/gysz/twf/dgwy/content/post_10841225.html"),
+      poi("sz_gangxia","岗厦北地铁站“深圳之眼”","拍照机位",22.5386,114.0660,"大型地下中庭与几何天花。","地铁运营时间内","","岗厦北站","使用超广角居中拍摄，避开通勤高峰。",OFFICIAL.sz),
+      poi("sz_pafc","平安金融中心云际观光层","景点",22.5364,114.0501,"高空城市观景候选。","开放与票务需复核","CNY","益田路5033号","晴天拍城市网格，夜间拍灯光。",OFFICIAL.sz),
+      poi("sz_huaqiang","华强北科技街区","购物",22.5456,114.0859,"电子市场、商业街与城市街拍。","商场时间不同","CNY","华强北路","夜晚招牌、天桥和人流适合城市街拍。","https://wtl.sz.gov.cn/xxgk/qt/gzdt/content/post_11440212.html"),
+      poi("sz_dongmen","东门老街","小吃",22.5440,114.1186,"步行街、小吃和老深圳商业氛围。","店铺时间不同","CNY","解放路一带","夜间街牌与人流构图。",OFFICIAL.sz),
+      poi("sz_luohu","罗湖口岸","交通站点",22.5319,114.1176,"深港往返交通节点。","通关时间需复核","","人民南路","仅作交通节点。",OFFICIAL.sz),
+      poi("sz_dafen","大芬油画村","景点",22.6264,114.1399,"油画产业、工作室与艺术街区。","店铺时间不同","","布吉街道大芬社区","画框巷道、工作室和色彩墙面。","https://www.eyeshenzhen.com/content/2025-06/06/content_31591912.htm"),
+      poi("sz_gankeng","甘坑古镇","景点",22.6574,114.1325,"客家建筑、巷道与夜景。","开放时间需复核","","甘李路18号","夜间灯笼和古建筑层次。","https://wtl.sz.gov.cn/xxgk/qt/gzdt/content/post_11440212.html"),
+      poi("sz_octloft","华侨城创意文化园","景点",22.5387,113.9874,"旧工业建筑、设计店与艺术空间。","店铺时间不同","","锦绣北街2号","红砖、涂鸦和工业风街拍。","https://www.eyeshenzhen.com/content/2025-06/06/content_31591912.htm"),
+      poi("sz_hexiangning","何香凝美术馆","博物馆",22.5359,113.9812,"中国美术馆与华侨城文化节点。","开放与休馆日需复核","","深南大道9013号","建筑立面和室内展览。",OFFICIAL.sz),
+      poi("sz_nantou","南头古城","景点",22.5407,113.9232,"历史街区、展览、餐饮与新旧建筑混合。","街区全天","","南山大道与深南大道交汇处","城门、骑楼、窄巷和夜景。","https://wtl.sz.gov.cn/xxgk/qt/gzdt/content/post_11440212.html"),
+      poi("sz_talent","人才公园","公园",22.5155,113.9427,"后海天际线与滨水步道。","开放时间需复核","","科苑南路3329号","春笋大厦、湖面倒影和日落。",OFFICIAL.sz),
+      poi("sz_sunrise","深圳湾公园日出剧场","拍照机位",22.4963,113.9365,"海岸线、日出与跨海城市景观。","开放时间需复核","","深圳湾公园","日出前到达；长焦拍城市与海鸟。","https://www.sz.gov.cn/ztfw/gysy/wyk_183958/content/post_11507459.html"),
+      poi("sz_seaworld","蛇口海上世界","夜景",22.4820,113.9159,"明华轮、商业街与夜间灯光。","店铺时间不同","","望海路1128号","广场水景与明华轮夜景。","https://wtl.sz.gov.cn/xxgk/qt/gzdt/content/post_11440212.html"),
+      poi("sz_happyharbor","欢乐港湾摩天轮","拍照机位",22.5550,113.8870,"滨海摩天轮和城市商业区。","开放与票务需复核","CNY","宝兴路8号","日落后拍摩天轮倒影和灯光。",OFFICIAL.sz),
+      poi("sz_baheri","八合里牛肉火锅（福田候选）","餐厅",22.5397,114.0491,"潮汕牛肉火锅餐厅候选，具体分店可修改。","营业时间需复核","CNY","福田中心区","以用餐为主。",OFFICIAL.sz),
+      poi("sz_runyuan","润园四季椰子鸡（车公庙候选）","餐厅",22.5325,114.0215,"深圳代表性椰子鸡餐厅候选，具体分店可修改。","营业时间需复核","CNY","车公庙一带","以用餐为主。",OFFICIAL.sz)
+    ]),
+    macau:city("澳门",[22.1838,113.5455],13,"历史城区、氹仔葡韵、路氹夜景、葡挞与澳门小吃地点库。","gcj02",[
+      poi("mo_ruins","大三巴牌坊","景点",22.1975,113.5407,"澳门历史城区代表性世界遗产。","开放时间需复核","","耶稣会纪念广场","清晨拍正面，侧巷可避开人群。","https://www.macaotourism.gov.mo/zh-hans/macao-full-of-fun/world-heritage-tour-in-central-district"),
+      poi("mo_love","恋爱巷","拍照机位",22.1973,113.5399,"彩色葡式建筑与大三巴侧面视角。","全天","","恋爱巷","巷口向大三巴方向拍摄。","https://www.macaotourism.gov.mo/zh-hans/macao-full-of-fun/world-heritage-tour-in-central-district/travessa-da-paixao"),
+      poi("mo_fort","大炮台","景点",22.1970,113.5422,"历史炮台与澳门半岛城市视角。","开放时间需复核","","大炮台斜巷","城墙、炮台与新葡京同框。",OFFICIAL.mo),
+      poi("mo_senado","议事亭前地","景点",22.1936,113.5395,"葡式波浪地砖与历史建筑广场。","全天","","新马路","清晨拍广场对称构图。",OFFICIAL.mo),
+      poi("mo_dominic","玫瑰圣母堂","景点",22.1942,113.5408,"黄色巴洛克风格教堂。","开放时间需复核","","板樟堂前地","从前地拍完整黄色立面。",OFFICIAL.mo),
+      poi("mo_margaret","玛嘉烈蛋挞店","小吃",22.1915,113.5435,"葡式蛋挞候选。","营业与休息日需复核","MOP","马统领街金利来大厦地下","店面巷道较窄，以用餐为主。",OFFICIAL.mo),
+      poi("mo_wongchi","黄枝记粥面（议事亭前地）","餐厅",22.1940,113.5405,"竹升面与粥品候选。","营业时间需复核","MOP","议事亭前地17号","以用餐为主。",OFFICIAL.mo),
+      poi("mo_ama","妈阁庙","景点",22.1860,113.5310,"澳门重要历史与宗教建筑。","开放时间需复核","","妈阁庙前地","石阶、香火与庙宇层次。",OFFICIAL.mo),
+      poi("mo_tower","澳门旅游塔","景点",22.1800,113.5360,"高空观景与极限体验地点。","开放与票务需复核","MOP","观光塔前地","南湾湖与塔身构图。","https://www.macautower.com.mo/"),
+      poi("mo_guia","东望洋灯塔","拍照机位",22.1970,113.5490,"灯塔、教堂与澳门半岛高点。","开放时间需复核","","东望洋山","白色灯塔与城市天际线。",OFFICIAL.mo),
+      poi("mo_fisherman","澳门渔人码头","拍照机位",22.1982,113.5591,"仿欧式建筑、海边与夜景。","街区开放时间需复核","","友谊大马路","罗马广场和海边建筑适合广角。",OFFICIAL.mo),
+      poi("mo_guanyin","观音像海滨","拍照机位",22.1908,113.5582,"海滨步道与澳门新城区视角。","全天","","宋玉生广场附近","长焦拍观音像与城市建筑。",OFFICIAL.mo),
+      poi("mo_cunha","官也街","小吃",22.1535,113.5553,"手信、甜品和传统餐饮聚集的步行街。","店铺时间不同","MOP","氹仔官也街","侧巷比主街更适合街拍。","https://www.macaotourism.gov.mo/zh-hans/macao-full-of-fun/portuguese-ambiance-tour-at-taipa-island/rua-do-cunha"),
+      poi("mo_taipahouses","龙环葡韵","景点",22.1523,113.5605,"绿色葡式住宅与湿地景观。","开放时间需复核","","海边马路","绿色建筑、嘉模教堂和日落。","https://www.macaotourism.gov.mo/zh-hans/step-out-macao/taipa"),
+      poi("mo_mokyikei","莫义记","小吃",22.1535,113.5550,"木糠布甸、榴莲雪糕等甜品候选。","营业时间需复核","MOP","官也街","以用餐为主。","https://www.macaotourism.gov.mo/zh-hans/step-out-macao/taipa"),
+      poi("mo_venetian","澳门威尼斯人","景点",22.1485,113.5615,"室内运河与大型度假区建筑。","开放时间需复核","","路氹金光大道","室内拱廊和夜间外立面。",OFFICIAL.mo),
+      poi("mo_londoner","澳门伦敦人外景","拍照机位",22.1464,113.5660,"欧式建筑群与夜间灯光。","外部全天","","路氹金光大道","马路对面使用长焦压缩建筑。",OFFICIAL.mo),
+      poi("mo_lordstow","安德鲁饼店（路环）","小吃",22.1167,113.5519,"路环葡挞与慢节奏街区候选。","营业时间需复核","MOP","路环市区市中心","可结合路环码头与彩色街屋。",OFFICIAL.mo)
+    ]),
+    kualalumpur:city("吉隆坡",[3.1518,101.7047],13,"双子塔、历史城区、宗教建筑、多元美食与城市夜景地点库。","wgs84",[
+      poi("kl_petronas","国家石油双子塔","景点",3.1579,101.7117,"吉隆坡代表性城市地标。","开放与票务需复核","MYR","Kuala Lumpur City Centre","KLCC公园、喷水池和正门广角机位。",OFFICIAL.kl),
+      poi("kl_klccpark","KLCC公园湖畔","拍照机位",3.1536,101.7134,"双子塔全景与湖面倒影。","公园时间需复核","","Jalan Ampang","傍晚由湖对岸拍双塔全景。",OFFICIAL.kl),
+      poi("kl_saloma","莎罗马行人天桥","拍照机位",3.1627,101.7079,"彩色灯光桥与双子塔视角。","开放时间需复核","","Kampung Baru","蓝调时刻拍桥体和双塔。",OFFICIAL.kl),
+      poi("kl_kltower","吉隆坡塔","景点",3.1528,101.7037,"高空城市观景地点。","开放与票务需复核","MYR","Jalan Puncak","观景台拍双子塔和城市全景。",OFFICIAL.kl),
+      poi("kl_merdeka","独立广场","景点",3.1478,101.6937,"马来西亚独立历史地标与开阔草坪。","全天","","Jalan Raja","低机位拍旗杆与历史建筑。",OFFICIAL.kl),
+      poi("kl_sultan","苏丹阿都沙末大厦","拍照机位",3.1486,101.6944,"摩尔式历史建筑。","外观全天","","Jalan Raja","从独立广场拍完整立面，夜间亮灯。",OFFICIAL.kl),
+      poi("kl_centralmarket","中央艺术坊","购物",3.1458,101.6953,"手工艺、纪念品与本地文化市场。","开放时间需复核","MYR","Jalan Hang Kasturi","蓝色建筑外立面与内部摊位。",OFFICIAL.kl),
+      poi("kl_petaling","茨厂街","小吃",3.1441,101.6980,"吉隆坡唐人街市场与街头美食。","店铺时间不同","MYR","Petaling Street","红色牌楼、市场纵深和夜间摊档。",OFFICIAL.kl),
+      poi("kl_kwai","鬼仔巷","拍照机位",3.1433,101.6974,"壁画、灯笼与旧街区改造空间。","开放时间需复核","","Lorong Panggung","清晨拍壁画和灯笼，避开人群。",OFFICIAL.kl),
+      poi("kl_merchant","Merchant's Lane","餐厅",3.1442,101.6975,"南洋风格咖啡馆和早午餐候选。","营业时间需复核","MYR","Jalan Petaling","室内绿植与复古装饰。",OFFICIAL.kl),
+      poi("kl_mosque","国家清真寺","景点",3.1419,101.6914,"现代伊斯兰建筑地标。","参观时间与着装需复核","","Jalan Perdana","蓝色星形屋顶和柱廊。",OFFICIAL.kl),
+      poi("kl_islamicmuseum","马来西亚伊斯兰艺术博物馆","博物馆",3.1414,101.6898,"伊斯兰艺术、建筑和穹顶。","开放与票务需复核","MYR","Jalan Lembah Perdana","白色建筑、蓝色穹顶与室内对称构图。",OFFICIAL.kl),
+      poi("kl_theanhou","天后宫","景点",3.1217,101.6870,"华人庙宇与城市高处视角。","开放时间需复核","","65 Persiaran Endah","红灯笼、屋檐与城市背景。",OFFICIAL.kl),
+      poi("kl_batu","黑风洞","景点",3.2379,101.6840,"彩色阶梯、金色神像与石灰岩洞穴。","开放时间需复核","","Gombak","清晨拍彩色阶梯；注意猴子与着装。",OFFICIAL.kl),
+      poi("kl_alor","阿罗街夜市","小吃",3.1465,101.7080,"晚间街头餐饮集中地。","傍晚后活跃","MYR","Jalan Alor","雨后招牌和摊档灯光适合夜拍。","https://storage.ebrochures.malaysia.travel/storage/IDB_PDF_MTG_SC.pdf"),
+      poi("kl_lot10","十号胡同","小吃",3.1466,101.7110,"商场内集合多家华人传统小吃。","营业时间需复核","MYR","50 Jalan Sultan Ismail","以用餐为主。",OFFICIAL.kl),
+      poi("kl_villagepark","Village Park Restaurant","餐厅",3.1430,101.6273,"椰浆饭热门餐厅候选。","营业时间需复核","MYR","Damansara Uptown","以用餐为主，距离市中心较远。",OFFICIAL.kl),
+      poi("kl_pavilion","武吉免登十字路口","拍照机位",3.1491,101.7132,"商业区人流、灯光与城市街拍。","全天","","Bukit Bintang","天桥或街角拍车流和广告屏。",OFFICIAL.kl),
+      poi("kl_trx","TRX Exchange屋顶公园","公园",3.1418,101.7188,"现代商业区、屋顶绿地和城市建筑。","开放时间需复核","","Tun Razak Exchange","傍晚拍现代天际线和花园。",OFFICIAL.kl)
+    ])
+  }
+};
+
+const KEY="jjtrip_mvp_v3";
+let db=loadDB(),map,tileLayer,markers=[],routeLayer=null,selectedId=null,filterType="全部",searchText="",isLocked=true,addMode=false,editingSegmentIndex=-1,tileErrors=0;
+
+function loadDB(){
+  try{
+    const raw=localStorage.getItem(KEY);if(!raw)return structuredClone(SEED);
+    const obj=JSON.parse(raw);if(!obj.cities||!obj.currentCity)throw Error("invalid");return obj;
+  }catch{return structuredClone(SEED)}
+}
+function saveDB(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(err){toast("本地存储空间不足，请先导出备份或减少图片")}}
+function currentCity(){return db.cities[db.currentCity]}
+function typeInfo(place){return {emoji:place.emoji||TYPE_CONFIG[place.type]?.emoji||"📍",color:TYPE_CONFIG[place.type]?.color||"#eef2f7"}}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2200)}
+function openSettings(focusLock=false){
+  document.getElementById("settingsModal").classList.add("open");
+  renderLockSettings();
+  if(focusLock&&isLocked)setTimeout(()=>document.getElementById("passwordInput").focus(),100);
+}
+function requireUnlock(action){if(!isLocked)return true;openSettings(true);if(action)toast("请先在设置中解锁后再"+action);return false}
+function hashPassword(text){let h=2166136261;for(const ch of text){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
+function renderLockSettings(){
+  const state=document.getElementById("lockState");if(!state)return;
+  state.classList.toggle("unlocked",!isLocked);
+  state.querySelector(".state-icon").textContent=isLocked?"🔒":"🔓";
+  document.getElementById("lockStateTitle").textContent=isLocked?"日常锁定中":"编辑已解锁";
+  document.getElementById("lockStateText").textContent=isLocked?"可正常浏览，但不能修改地点、路线或存档。":"现在可以修改资料和规划路线，完成后请重新锁定。";
+  document.getElementById("lockedControls").hidden=!isLocked;
+  document.getElementById("unlockedControls").hidden=isLocked;
+  const trigger=document.getElementById("mascotSettingsBtn");
+  trigger.classList.toggle("unlocked",!isLocked);
+  document.getElementById("mascotLockBadge").textContent=isLocked?"🔒":"🔓";
+  trigger.title=isLocked?"旅行搭子设置 · 当前已锁定":"旅行搭子设置 · 当前可编辑";
+}
+function setLocked(value){
+  isLocked=value;addMode=false;document.getElementById("addModeTip").classList.remove("show");
+  document.getElementById("passwordError").textContent="";
+  document.getElementById("passwordInput").value="";
+  renderAll();renderLockSettings();
+  toast(value?"已锁定，防止误触修改":"编辑已解锁");
+}
+
+function initMap(){
+  map=L.map("map",{zoomControl:false,attributionControl:true}).setView(displayCoord(currentCity().center),currentCity().zoom);
+  L.control.zoom({position:"bottomright"}).addTo(map);setTileLayer(db.settings?.mapLayer||"amap");
+  map.on("click",ev=>{if(!addMode)return;if(!requireUnlock("新增地点"))return;const ll=storageCoord([ev.latlng.lat,ev.latlng.lng]);addMode=false;document.getElementById("addModeTip").classList.remove("show");createPlaceAt(ll)});
+  map.on("zoomend",renderMarkers);renderAll();
+}
+function setTileLayer(name){
+  if(tileLayer)map.removeLayer(tileLayer);tileErrors=0;db.settings=db.settings||{};db.settings.mapLayer=name;saveDB();
+  if(name==="amap"){
+    tileLayer=L.tileLayer("https://webrd0{s}.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z}",{subdomains:[1,2,3,4],maxZoom:19,attribution:"© 高德地图"});
+    document.getElementById("mapProviderText").textContent="高德中文底图";
+  }else{
+    tileLayer=L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"});
+    document.getElementById("mapProviderText").textContent="OpenStreetMap备用底图";
+  }
+  tileLayer.on("tileerror",()=>{tileErrors++;if(tileErrors===8&&name==="amap")toast("中文底图加载异常，可在设置中切换备用地图")});tileLayer.addTo(map);
+}
+
+function renderAll(){
+  const c=currentCity();document.getElementById("cityButton").textContent=c.name+" ⌄";
+  document.getElementById("searchInput").value=searchText;document.getElementById("mapLayerSelect").value=db.settings?.mapLayer||"amap";
+  renderFilters();renderMarkers();renderTimeline();renderCityList();renderVersions();renderCityFields();renderLockSettings();
+  if(selectedId){const p=c.places.find(x=>x.id===selectedId);p?renderDetail(p):clearDetail()}
+}
+function renderFilters(){
+  const types=["全部",...Object.keys(TYPE_CONFIG).filter(t=>currentCity().places.some(p=>p.type===t))];const bar=document.getElementById("filterBar");bar.innerHTML="";
+  types.forEach(t=>{const b=document.createElement("button");b.className="filter-chip"+(filterType===t?" active":"");b.textContent=t==="全部"?"全部":`${TYPE_CONFIG[t]?.emoji||"📍"} ${t}`;b.onclick=()=>{filterType=t;renderFilters();renderMarkers()};bar.appendChild(b)});
+}
+function filteredPlaces(){return currentCity().places.filter(p=>(filterType==="全部"||p.type===filterType)&&(!searchText||[p.name,p.type,p.note,p.address,p.tags?.join(" ")].join(" ").toLowerCase().includes(searchText.toLowerCase())))}
+function renderMarkers(){
+  markers.forEach(m=>map.removeLayer(m));markers=[];if(routeLayer){map.removeLayer(routeLayer);routeLayer=null}
+  const c=currentCity(),compact=map.getZoom()<14,visible=new Set(filteredPlaces().map(p=>p.id));
+  c.places.forEach(p=>{
+    if(!visible.has(p.id))return;const routeIndex=c.route.indexOf(p.id);const ti=typeInfo(p),dc=displayCoord([p.lat,p.lng]);
+    const html=`<div class="poi-marker ${routeIndex>=0?"in-route":""} ${compact?"compact":""} ${isLocked?"locked":""}" style="--poi:${ti.color}">${routeIndex>=0?`<span class="route-index">${routeIndex+1}</span>`:""}<span class="emoji" style="background:${ti.color}">${ti.emoji}</span><span class="name">${esc(p.name)}</span></div>`;
+    const icon=L.divIcon({className:"",html,iconSize:compact?[39,39]:[Math.min(210,58+p.name.length*13),39],iconAnchor:[18,19]});
+    const marker=L.marker(dc,{icon,draggable:!isLocked,autoPan:true}).addTo(map).bindTooltip(`${ti.emoji} ${esc(p.name)}`,{direction:"top",offset:[0,-14]});
+    marker.on("click",()=>selectPlace(p.id));marker.on("dragend",ev=>{if(isLocked)return;const s=storageCoord([ev.target.getLatLng().lat,ev.target.getLatLng().lng]);p.lat=+s[0].toFixed(6);p.lng=+s[1].toFixed(6);saveDB();renderRouteLine();toast("地点位置已更新")});markers.push(marker);
+  });renderRouteLine();
+}
+function renderRouteLine(){
+  if(routeLayer){map.removeLayer(routeLayer);routeLayer=null}const c=currentCity();const pts=c.route.map(id=>c.places.find(p=>p.id===id)).filter(Boolean).map(p=>displayCoord([p.lat,p.lng]));
+  if(pts.length>1)routeLayer=L.polyline(pts,{color:"#2563eb",weight:5,opacity:.82,dashArray:"10 9",lineCap:"round"}).addTo(map);
+}
+function fitAll(){const pts=filteredPlaces().map(p=>displayCoord([p.lat,p.lng]));if(pts.length)map.fitBounds(pts,{padding:[45,45],maxZoom:15})}
+
+function selectPlace(id){selectedId=id;const p=currentCity().places.find(x=>x.id===id);if(!p)return;const dc=displayCoord([p.lat,p.lng]);map.flyTo(dc,Math.max(map.getZoom(),15),{duration:.55});renderDetail(p);renderTimeline();document.getElementById("detailPanel").classList.add("mobile-open")}
+function clearDetail(){selectedId=null;document.getElementById("detailPanel").innerHTML='<div class="empty">点击地图上的地点查看资料。<br>🔒 默认锁定。点击右上角吉祥物进入设置后解锁。</div>';document.getElementById("detailPanel").classList.remove("mobile-open")}
+function renderDetail(p){
+  const panel=document.getElementById("detailPanel"),ti=typeInfo(p),inRoute=currentCity().route.includes(p.id),d=isLocked?"disabled":"";
+  panel.innerHTML=`<div class="place-head"><div class="place-emoji" style="background:${ti.color}">${ti.emoji}</div><div><h2>${esc(p.name)}</h2><div class="sub">${esc(currentCity().name)} · ${esc(p.type)} · ${isLocked?"只读浏览":"可编辑状态"}</div></div></div>
+  ${p.image?`<img class="preview" src="${esc(p.image)}" alt="${esc(p.name)}参考图" onerror="this.style.display='none'">`:'<div class="preview"></div>'}
+  ${isLocked?renderReadOnly(p):renderEditForm(p)}
+  <div class="actions"><button class="btn-primary" id="routeToggle" ${d}>${inRoute?"从路线移除":"＋ 加入自规划路线"}</button>${p.source?'<button class="btn" id="openSource">打开资料来源</button>':''}<button class="btn" id="closeDetail">关闭</button></div>
+  ${isLocked?'<p class="lock-tip">🔒 日常锁定中。点击右上角吉祥物进入设置并输入密码后，才可修改资料、拖动地点或规划路线。</p>':''}`;
+  document.getElementById("routeToggle").onclick=()=>toggleRoute(p.id);document.getElementById("closeDetail").onclick=clearDetail;if(p.source)document.getElementById("openSource").onclick=()=>window.open(p.source,"_blank");
+  if(!isLocked)bindEditor(p);
+}
+function renderReadOnly(p){return `<div class="read-grid"><div class="read-item"><b>类别</b><span>${esc(p.type)}</span></div><div class="read-item"><b>参考价格</b><span>${esc(p.price||"待补充")}</span></div><div class="read-item"><b>开放/营业</b><span>${esc(p.hours||"待补充")}</span></div><div class="read-item"><b>地址</b><span>${esc(p.address||"待补充")}</span></div></div><div class="section-title">地点说明</div><div class="description">${esc(p.note||"暂无说明")}</div><div class="section-title">拍摄机位提示</div><div class="description">${esc(p.photoTip||"暂无机位提示")}</div>`}
+function renderEditForm(p){return `<div class="field"><label>地点名称</label><input data-k="name" value="${esc(p.name)}"></div><div class="grid2"><div class="field"><label>类型</label><select data-k="type">${Object.keys(TYPE_CONFIG).map(t=>`<option ${t===p.type?"selected":""}>${TYPE_CONFIG[t].emoji} ${t}</option>`).join("")}</select></div><div class="field"><label>自定义表情</label><input data-k="emoji" value="${esc(p.emoji||"")}" placeholder="留空使用类别图标"></div></div><div class="grid2"><div class="field"><label>参考价格</label><input data-k="price" value="${esc(p.price||"")}"></div><div class="field"><label>开放/营业时间</label><input data-k="hours" value="${esc(p.hours||"")}"></div></div><div class="field"><label>地址</label><input data-k="address" value="${esc(p.address||"")}"></div><div class="field"><label>地点说明</label><textarea data-k="note">${esc(p.note||"")}</textarea></div><div class="field"><label>机位/拍摄提示</label><textarea data-k="photoTip">${esc(p.photoTip||"")}</textarea></div><div class="field"><label>标签（逗号分隔）</label><input id="tagsInput" value="${esc((p.tags||[]).join(","))}"></div><div class="field"><label>参考图片网址</label><input data-k="image" value="${esc(p.image||"")}" placeholder="https://..."></div><div class="field"><label>或上传本地参考图</label><input id="imageUpload" type="file" accept="image/*"></div><div class="field"><label>资料来源网址</label><input data-k="source" value="${esc(p.source||"")}"></div><p class="hint">不显示经纬度字段。解锁后直接拖动地图标记来调整真实位置。</p><div class="actions"><button class="btn-danger btn" id="deletePlace">删除地点</button></div>`}
+function bindEditor(p){
+  document.querySelectorAll("#detailPanel [data-k]").forEach(input=>input.addEventListener("input",()=>{let value=input.value;if(input.dataset.k==="type")value=value.replace(/^\S+\s/,"");p[input.dataset.k]=value;saveDB();if(["name","type","emoji"].includes(input.dataset.k))renderMarkers();renderTimeline()}));
+  document.getElementById("tagsInput").addEventListener("input",ev=>{p.tags=ev.target.value.split(/[,，]/).map(s=>s.trim()).filter(Boolean);saveDB()});
+  document.getElementById("imageUpload").addEventListener("change",async ev=>{const file=ev.target.files[0];if(!file)return;try{p.image=await compressImage(file);saveDB();renderDetail(p);toast("参考图已保存到本机")}catch{toast("图片处理失败")}});
+  document.getElementById("deletePlace").onclick=()=>{if(!confirm(`删除“${p.name}”？`))return;const c=currentCity();c.places=c.places.filter(x=>x.id!==p.id);c.route=c.route.filter(id=>id!==p.id);Object.keys(c.segments).forEach(k=>{if(k.includes(p.id))delete c.segments[k]});saveDB();clearDetail();renderAll();toast("地点已删除")};
+}
+async function compressImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=reject;r.onload=()=>{const img=new Image();img.onerror=reject;img.onload=()=>{const max=1280,scale=Math.min(1,max/img.width),canvas=document.createElement("canvas");canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",.78))};img.src=r.result};r.readAsDataURL(file)})}
+
+function toggleRoute(id){if(!requireUnlock("规划路线"))return;const c=currentCity(),i=c.route.indexOf(id);if(i>=0)c.route.splice(i,1);else c.route.push(id);saveDB();renderMarkers();renderTimeline();renderDetail(c.places.find(p=>p.id===id));toast(i>=0?"已从路线移除":"已加入自规划路线")}
+function renderTimeline(){
+  const el=document.getElementById("timeline"),c=currentCity();el.innerHTML="";let totalMin=0,totalKm=0;
+  if(!c.route.length){el.innerHTML='<div class="route-empty"><div><b>路线目前为空</b><br>解锁后点击地图地点，再选择“加入自规划路线”。<br>规划完成后，这里会自动生成可横向滑动的导图。</div></div>';document.getElementById("routeStats").textContent="尚未规划路线";return}
+  c.route.forEach((id,i)=>{const p=c.places.find(x=>x.id===id);if(!p)return;const ti=typeInfo(p),n=document.createElement("article");n.className="node"+(id===selectedId?" active":"");n.innerHTML=`<div class="node-top"><span class="badge">${ti.emoji} ${esc(p.type)}</span><span class="route-no">第 ${i+1} 站</span></div><h3>${esc(p.name)}</h3><p>${esc(p.note||"暂无说明")}</p>${!isLocked?`<div class="node-actions"><button data-move="-1">← 前移</button><button data-move="1">后移 →</button><button data-remove="1">移除</button></div>`:""}`;n.onclick=ev=>{if(ev.target.tagName!=="BUTTON")selectPlace(id)};
+    if(!isLocked){n.querySelectorAll("[data-move]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();moveRoute(i,Number(b.dataset.move))});n.querySelector("[data-remove]").onclick=ev=>{ev.stopPropagation();toggleRoute(id)}}el.appendChild(n);
+    if(i<c.route.length-1){const next=c.route[i+1],seg=getSegment(id,next),edge=document.createElement("div");totalMin+=Number(seg.minutes)||0;totalKm+=Number(seg.km)||0;edge.className="edge"+(!isLocked?" editable":"");edge.innerHTML=`<b>${esc(seg.mode)}</b><div class="edge-line"></div><span>${seg.minutes||0} 分钟 · ${Number(seg.km||0).toFixed(1)} km</span>${seg.note?`<span>${esc(seg.note)}</span>`:""}`;edge.onclick=()=>openSegment(i);el.appendChild(edge)}
+  });document.getElementById("routeStats").textContent=`${c.route.length} 个地点 · 约 ${totalMin} 分钟交通 · ${totalKm.toFixed(1)} km`;
+}
+function segmentKey(a,b){return `${a}__${b}`}
+function getSegment(a,b){const c=currentCity(),k=segmentKey(a,b);if(!c.segments[k]){const p1=c.places.find(p=>p.id===a),p2=c.places.find(p=>p.id===b),km=+(haversine(p1,p2)*1.22).toFixed(1);c.segments[k]={mode:"步行",minutes:Math.max(1,Math.round(km/4.5*60)),km,note:"自动估算，可修改"}}return c.segments[k]}
+function moveRoute(i,delta){if(!requireUnlock("调整路线"))return;const c=currentCity(),j=i+delta;if(j<0||j>=c.route.length)return;[c.route[i],c.route[j]]=[c.route[j],c.route[i]];saveDB();renderMarkers();renderTimeline()}
+function openSegment(i){if(!requireUnlock("修改交通段"))return;editingSegmentIndex=i;const c=currentCity(),a=c.places.find(p=>p.id===c.route[i]),b=c.places.find(p=>p.id===c.route[i+1]),seg=getSegment(a.id,b.id);document.getElementById("segmentTitle").textContent=`${a.name} → ${b.name}`;document.getElementById("segmentMode").value=seg.mode;document.getElementById("segmentMinutes").value=seg.minutes;document.getElementById("segmentKm").value=seg.km;document.getElementById("segmentNote").value=seg.note||"";document.getElementById("segmentModal").classList.add("open")}
+function haversine(a,b){const R=6371,toRad=x=>x*Math.PI/180,dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng),v=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(v),Math.sqrt(1-v))}
+
+function toggleAddMode(){if(!requireUnlock("新增地点"))return;addMode=!addMode;document.getElementById("addModeTip").classList.toggle("show",addMode);toast(addMode?"请点击地图放置新地点":"已取消新增")}
+function createPlaceAt(ll){const c=currentCity(),id=db.currentCity+"_"+Date.now(),p=poi(id,"新地点","景点",ll[0],ll[1],"请补充地点说明。","待补充","","","","");c.places.push(p);saveDB();renderAll();selectPlace(id);toast("新地点已创建")}
+function addCity(){if(!requireUnlock("新增城市"))return;const name=prompt("新城市名称");if(!name)return;const id="city_"+Date.now(),center=storageCoord([map.getCenter().lat,map.getCenter().lng]);db.cities[id]=city(name,center,12,"请补充城市说明。","wgs84",[]);db.currentCity=id;saveDB();map.setView(displayCoord(center),12);filterType="全部";searchText="";selectedId=null;renderAll();document.getElementById("settingsModal").classList.remove("open");toast("新城市已创建")}
+
+function renderCityList(){const el=document.getElementById("cityList");el.innerHTML="";Object.entries(db.cities).forEach(([id,c])=>{const row=document.createElement("div");row.className="city-item"+(id===db.currentCity?" current":"");row.innerHTML=`<div><b>${esc(c.name)}</b><div class="sub">${c.places.length} 个地点 · ${c.route.length} 个路线点</div></div><button class="btn small">切换</button>`;row.querySelector("button").onclick=()=>switchCity(id);el.appendChild(row)})}
+function switchCity(id){db.currentCity=id;selectedId=null;filterType="全部";searchText="";saveDB();const c=currentCity();map.setView(displayCoord(c.center),c.zoom);renderAll();clearDetail();document.getElementById("settingsModal").classList.remove("open")}
+function renderCityFields(){const c=currentCity();document.getElementById("cityNameInput").value=c.name;document.getElementById("citySummaryInput").value=c.summary||"";document.getElementById("cityNameInput").disabled=isLocked;document.getElementById("citySummaryInput").disabled=isLocked;document.getElementById("saveCityInfoBtn").disabled=isLocked;document.getElementById("addCityBtn").disabled=isLocked;document.getElementById("importInput").disabled=isLocked;document.getElementById("resetBtn").disabled=isLocked}
+function saveVersion(){const label=prompt("版本名称",`${currentCity().name} ${new Date().toLocaleString("zh-CN")}`);if(!label)return;db.versions.push({id:Date.now(),cityId:db.currentCity,label,created:new Date().toISOString(),data:structuredClone(currentCity())});saveDB();renderVersions();toast("版本已保存")}
+function renderVersions(){const s=document.getElementById("versionSelect");s.innerHTML='<option value="">选择已保存版本</option>'+db.versions.filter(v=>v.cityId===db.currentCity).map(v=>`<option value="${v.id}">${esc(v.label)}</option>`).join("")}
+function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`JJTrip备份-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),200)}
+
+function displayCoord(latlng){const c=currentCity();return c.coord==="gcj02"?wgsToGcj(latlng[0],latlng[1]):latlng}
+function storageCoord(latlng){const c=currentCity();return c.coord==="gcj02"?gcjToWgs(latlng[0],latlng[1]):latlng}
+function outOfChina(lat,lng){return lng<72.004||lng>137.8347||lat<0.8293||lat>55.8271}
+function transformLat(x,y){let r=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y*Math.PI/30))*2/3;return r}
+function transformLng(x,y){let r=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3;return r}
+function wgsToGcj(lat,lng){if(outOfChina(lat,lng))return[lat,lng];let dLat=transformLat(lng-105,lat-35),dLng=transformLng(lng-105,lat-35),radLat=lat/180*Math.PI,magic=Math.sin(radLat);magic=1-.00669342162296594323*magic*magic;const sqrt=Math.sqrt(magic);dLat=dLat*180/((6335552.717000426/(magic*sqrt))*Math.PI);dLng=dLng*180/((6378245/sqrt)*Math.cos(radLat)*Math.PI);return[lat+dLat,lng+dLng]}
+function gcjToWgs(lat,lng){const g=wgsToGcj(lat,lng);return[lat*2-g[0],lng*2-g[1]]}
+
+// UI bindings
+document.getElementById("searchInput").addEventListener("input",ev=>{searchText=ev.target.value.trim();renderMarkers()});
+document.getElementById("fitBtn").onclick=fitAll;document.getElementById("addPlaceBtn").onclick=toggleAddMode;document.getElementById("mobileAddPlaceBtn").onclick=toggleAddMode;
+document.getElementById("mascotSettingsBtn").onclick=()=>openSettings(false);
+document.getElementById("cityButton").onclick=()=>openSettings(false);
+document.getElementById("closeSettings").onclick=()=>document.getElementById("settingsModal").classList.remove("open");
+document.getElementById("settingsModal").onclick=ev=>{if(ev.target.id==="settingsModal")ev.currentTarget.classList.remove("open")};
+document.getElementById("confirmUnlock").onclick=()=>{
+  const val=document.getElementById("passwordInput").value;
+  if(hashPassword(val)!==2576725674){document.getElementById("passwordError").textContent="密码错误，请重新输入。";return}
+  setLocked(false);
+};
+document.getElementById("passwordInput").addEventListener("keydown",ev=>{if(ev.key==="Enter")document.getElementById("confirmUnlock").click()});
+document.getElementById("lockNowBtn").onclick=()=>setLocked(true);
+document.getElementById("mapLayerSelect").onchange=ev=>setTileLayer(ev.target.value);document.getElementById("addCityBtn").onclick=addCity;
+document.getElementById("saveCityInfoBtn").onclick=()=>{if(!requireUnlock("修改城市资料"))return;const c=currentCity();c.name=document.getElementById("cityNameInput").value.trim()||c.name;c.summary=document.getElementById("citySummaryInput").value.trim();saveDB();renderAll();toast("城市资料已保存")};
+document.getElementById("clearRouteBtn").onclick=()=>{if(!requireUnlock("清空路线"))return;if(confirm("清空当前自规划路线？")){currentCity().route=[];saveDB();renderMarkers();renderTimeline();toast("路线已清空")}};
+document.getElementById("saveVersionBtn").onclick=saveVersion;document.getElementById("exportBtn").onclick=exportData;
+document.getElementById("importInput").onchange=async ev=>{if(!requireUnlock("导入数据"))return;try{const text=await ev.target.files[0].text(),obj=JSON.parse(text);if(!obj.cities)throw Error("文件格式不正确");db=obj;saveDB();location.reload()}catch(err){toast("导入失败："+err.message)}};
+document.getElementById("resetBtn").onclick=()=>{if(!requireUnlock("恢复初始数据"))return;if(confirm("这会覆盖本机所有修改，确定恢复？")){db=structuredClone(SEED);saveDB();location.reload()}};
+document.getElementById("restoreVersionBtn").onclick=()=>{if(!requireUnlock("恢复版本"))return;const id=Number(document.getElementById("versionSelect").value),v=db.versions.find(x=>x.id===id);if(!v)return toast("请先选择版本");if(confirm("恢复会覆盖当前城市内容，继续？")){db.cities[v.cityId]=structuredClone(v.data);saveDB();renderAll();toast("版本已恢复")}};
+document.getElementById("saveSegment").onclick=()=>{const c=currentCity(),a=c.route[editingSegmentIndex],b=c.route[editingSegmentIndex+1];if(!a||!b)return;const seg=getSegment(a,b);seg.mode=document.getElementById("segmentMode").value;seg.minutes=Math.max(0,Number(document.getElementById("segmentMinutes").value)||0);seg.km=Math.max(0,Number(document.getElementById("segmentKm").value)||0);seg.note=document.getElementById("segmentNote").value.trim();saveDB();document.getElementById("segmentModal").classList.remove("open");renderTimeline();toast("交通段已保存")};
+document.getElementById("cancelSegment").onclick=()=>document.getElementById("segmentModal").classList.remove("open");document.getElementById("segmentModal").onclick=ev=>{if(ev.target.id==="segmentModal")ev.currentTarget.classList.remove("open")};
+window.addEventListener("keydown",ev=>{if(ev.key==="Escape"){document.querySelectorAll(".open").forEach(x=>x.classList.remove("open"));clearDetail()}});
+initMap();
+</script>
+</body>
+</html>
