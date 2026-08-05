@@ -11,7 +11,7 @@
 </head>
 <body>
   <div class="app-shell">
-    <header class="topbar">
+    <header class="topbar" id="siteTopbar">
       <a class="brand-logo-wrap" href="./" aria-label="JJTrip 首页">
         <span class="brand-logo-3d" aria-hidden="true">
           <span class="brand-emblem">
@@ -29,6 +29,9 @@
       </label>
       <nav class="filter-strip" id="filterBar" aria-label="地点类型筛选"></nav>
     </header>
+    <button class="topbar-toggle" id="topbarToggle" type="button" aria-expanded="true" aria-controls="siteTopbar">
+      <span class="topbar-toggle-icon" aria-hidden="true">⌃</span><span class="topbar-toggle-text">隐藏导航</span>
+    </button>
 
     <main class="map-stage" id="mapStage">
       <div class="virtual-map" id="virtualMap" aria-label="彩色卡通虚拟地图">
@@ -36,9 +39,17 @@
           <span class="edit-toolbar-status"><span aria-hidden="true">✦</span><span><b>编辑模式</b><small>可拖动地点标记调整位置</small></span></span>
           <span class="edit-toolbar-actions"><button class="btn-primary" id="quickAddPlaceBtn" type="button">＋ 新增地点</button><button class="btn" id="quickFinishEditBtn" type="button">完成编辑</button></span>
         </div>
-        <div class="map-art" id="mapArt"></div>
-        <svg class="route-overlay" id="routeOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
-        <div class="marker-layer" id="markerLayer"></div>
+        <div class="map-transform-layer" id="mapTransformLayer">
+          <div class="map-art" id="mapArt"></div>
+          <svg class="route-overlay" id="routeOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="marker-layer" id="markerLayer"></div>
+        </div>
+        <div class="map-zoom-controls" aria-label="地图缩放控制">
+          <button id="zoomInBtn" type="button" aria-label="放大地图">＋</button>
+          <button id="zoomOutBtn" type="button" aria-label="缩小地图">－</button>
+          <button id="resetMapViewBtn" type="button" aria-label="恢复地图全景">全景</button>
+        </div>
+        <div class="map-gesture-hint" id="mapGestureHint"><span aria-hidden="true">☝️</span><span>单指拖动 · 双指缩放</span></div>
         <div class="add-place-tip" id="addPlaceTip" hidden>
           <span class="add-place-tip-icon" aria-hidden="true">＋</span>
           <span class="add-place-tip-copy"><b>选择地点位置</b><small>点击地图空白处，再设置类型、图标和名称</small></span>

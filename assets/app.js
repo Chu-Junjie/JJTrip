@@ -4,6 +4,9 @@
 
   const STORAGE_KEY = "jjtrip_mvp_v3";
   const RECOVERY_KEY = "jjtrip_mvp_v3_recovery";
+  const NAV_COLLAPSE_KEY = "jjtrip_nav_collapsed";
+  const MAP_MIN_SCALE = 0.55;
+  const MAP_MAX_SCALE = 3.6;
   const MAX_PLACE_IMAGES = 12;
   const MAX_PLACE_IMAGE_CHARACTERS = 3200000;
   const MAX_SOURCE_IMAGE_BYTES = 15 * 1024 * 1024;
@@ -69,10 +72,16 @@
     filterBar: document.getElementById("filterBar"),
     mapStage: document.getElementById("mapStage"),
     virtualMap: document.getElementById("virtualMap"),
+    mapTransformLayer: document.getElementById("mapTransformLayer"),
     mapArt: document.getElementById("mapArt"),
     markerLayer: document.getElementById("markerLayer"),
     routeOverlay: document.getElementById("routeOverlay"),
     mapCaption: document.getElementById("mapCaption"),
+    topbarToggle: document.getElementById("topbarToggle"),
+    zoomInBtn: document.getElementById("zoomInBtn"),
+    zoomOutBtn: document.getElementById("zoomOutBtn"),
+    resetMapViewBtn: document.getElementById("resetMapViewBtn"),
+    mapGestureHint: document.getElementById("mapGestureHint"),
     addPlaceTip: document.getElementById("addPlaceTip"),
     editToolbar: document.getElementById("editToolbar"),
     quickAddPlaceBtn: document.getElementById("quickAddPlaceBtn"),
@@ -145,6 +154,10 @@
   let editingSegment = null;
   let mascotPosition = null;
   let saveFailureUntil = 0;
+  let mapView = { scale: 1, x: 0, y: 0 };
+  let mapContentSize = { width: 0, height: 0 };
+  let mapViewCityId = null;
+  let mapGestureUsed = false;
   let db = loadDatabase();
 
   function deepClone(value) {
@@ -164,6 +177,205 @@
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+  }
+
+
+  function mapViewportRect() {
+    return dom.virtualMap.getBoundingClientRect();
+  }
+
+  function updateMapContentSize() {
+    const rect = mapViewportRect();
+    if (!rect.width || !rect.height) return mapContentSize;
+    const width = innerWidth <= 720
+      ? Math.max(rect.width, Math.min(rect.height * 1.05, rect.width * 1.65))
+      : rect.width;
+    const height = rect.height;
+    mapContentSize = { width, height };
+    dom.mapTransformLayer.style.width = `${width}px`;
+    dom.mapTransformLayer.style.height = `${height}px`;
+    return mapContentSize;
+  }
+
+  function clampMapView(view = mapView) {
+    const rect = mapViewportRect();
+    const size = updateMapContentSize();
+    const scale = clamp(finiteNumber(view.scale) ?? 1, MAP_MIN_SCALE, MAP_MAX_SCALE);
+    const scaledWidth = size.width * scale;
+    const scaledHeight = size.height * scale;
+    const x = scaledWidth <= rect.width
+      ? (rect.width - scaledWidth) / 2
+      : clamp(finiteNumber(view.x) ?? 0, rect.width - scaledWidth, 0);
+    const y = scaledHeight <= rect.height
+      ? (rect.height - scaledHeight) / 2
+      : clamp(finiteNumber(view.y) ?? 0, rect.height - scaledHeight, 0);
+    return { scale, x, y };
+  }
+
+  function applyMapView(resolveLabels = true) {
+    mapView = clampMapView(mapView);
+    dom.mapTransformLayer.style.transform = `translate3d(${mapView.x}px, ${mapView.y}px, 0) scale(${mapView.scale})`;
+    dom.mapTransformLayer.style.setProperty("--marker-view-scale", String(1 / mapView.scale));
+    dom.zoomInBtn.disabled = mapView.scale >= MAP_MAX_SCALE - 0.01;
+    dom.zoomOutBtn.disabled = mapView.scale <= MAP_MIN_SCALE + 0.01;
+    if (resolveLabels) requestAnimationFrame(() => {
+      resolveMarkerPositions();
+      resolveMarkerLabels();
+    });
+  }
+
+  function resetMapView(announce = false) {
+    const rect = mapViewportRect();
+    const size = updateMapContentSize();
+    const fitScale = clamp(Math.min(rect.width / Math.max(1, size.width), rect.height / Math.max(1, size.height)), MAP_MIN_SCALE, 1);
+    mapView = { scale: fitScale, x: 0, y: 0 };
+    applyMapView();
+    if (announce) showToast("已显示完整地图");
+  }
+
+  function mapPointFromClient(clientX, clientY) {
+    const rect = mapViewportRect();
+    return {
+      x: (clientX - rect.left - mapView.x) / Math.max(0.01, mapView.scale),
+      y: (clientY - rect.top - mapView.y) / Math.max(0.01, mapView.scale),
+      width: mapContentSize.width || rect.width,
+      height: mapContentSize.height || rect.height
+    };
+  }
+
+  function zoomMapTo(nextScale, clientX, clientY) {
+    const rect = mapViewportRect();
+    if (!rect.width || !rect.height) return;
+    const targetScale = clamp(nextScale, MAP_MIN_SCALE, MAP_MAX_SCALE);
+    const focusX = finiteNumber(clientX) ?? rect.left + rect.width / 2;
+    const focusY = finiteNumber(clientY) ?? rect.top + rect.height / 2;
+    const contentPoint = mapPointFromClient(focusX, focusY);
+    mapView = {
+      scale: targetScale,
+      x: focusX - rect.left - contentPoint.x * targetScale,
+      y: focusY - rect.top - contentPoint.y * targetScale
+    };
+    applyMapView();
+    dismissMapGestureHint();
+  }
+
+  function dismissMapGestureHint() {
+    if (mapGestureUsed) return;
+    mapGestureUsed = true;
+    dom.mapGestureHint?.classList.add("dismissed");
+  }
+
+  function setNavigationCollapsed(collapsed, save = true) {
+    document.querySelector(".app-shell")?.classList.toggle("nav-collapsed", collapsed);
+    dom.topbarToggle.setAttribute("aria-expanded", String(!collapsed));
+    dom.topbarToggle.querySelector(".topbar-toggle-text").textContent = collapsed ? "显示导航" : "隐藏导航";
+    dom.topbarToggle.setAttribute("aria-label", collapsed ? "显示顶部导航" : "隐藏顶部导航");
+    if (save) {
+      try { localStorage.setItem(NAV_COLLAPSE_KEY, collapsed ? "1" : "0"); } catch (_) {}
+    }
+    requestAnimationFrame(() => {
+      updateMapTextScale();
+      applyMapView();
+      clampAndPlaceMascot(false);
+    });
+  }
+
+  function bindMapGestures() {
+    const pointers = new Map();
+    let panStart = null;
+    let pinchStart = null;
+    let moved = false;
+
+    const pointerPosition = event => ({ x: event.clientX, y: event.clientY });
+    const midpoint = (first, second) => ({ x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 });
+    const distance = (first, second) => Math.hypot(second.x - first.x, second.y - first.y);
+    const excluded = target => target.closest(".place-marker, .add-place-tip, .edit-toolbar, .map-zoom-controls");
+
+    dom.virtualMap.addEventListener("pointerdown", event => {
+      if (excluded(event.target) || addPlaceMode) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      event.preventDefault();
+      pointers.set(event.pointerId, pointerPosition(event));
+      try { dom.virtualMap.setPointerCapture?.(event.pointerId); } catch (_) {}
+      const values = Array.from(pointers.values());
+      if (values.length === 1) {
+        panStart = { pointer: values[0], view: { ...mapView } };
+        pinchStart = null;
+      } else if (values.length === 2) {
+        const middle = midpoint(values[0], values[1]);
+        const rect = mapViewportRect();
+        pinchStart = {
+          distance: Math.max(1, distance(values[0], values[1])),
+          scale: mapView.scale,
+          contentX: (middle.x - rect.left - mapView.x) / mapView.scale,
+          contentY: (middle.y - rect.top - mapView.y) / mapView.scale
+        };
+        panStart = null;
+      }
+    });
+
+    dom.virtualMap.addEventListener("pointermove", event => {
+      if (!pointers.has(event.pointerId)) return;
+      event.preventDefault();
+      pointers.set(event.pointerId, pointerPosition(event));
+      const values = Array.from(pointers.values());
+      if (values.length >= 2 && pinchStart) {
+        const middle = midpoint(values[0], values[1]);
+        const rect = mapViewportRect();
+        const nextScale = clamp(pinchStart.scale * distance(values[0], values[1]) / pinchStart.distance, MAP_MIN_SCALE, MAP_MAX_SCALE);
+        mapView = {
+          scale: nextScale,
+          x: middle.x - rect.left - pinchStart.contentX * nextScale,
+          y: middle.y - rect.top - pinchStart.contentY * nextScale
+        };
+        moved = true;
+        dom.virtualMap.classList.add("is-panning");
+        applyMapView(false);
+        dismissMapGestureHint();
+      } else if (values.length === 1 && panStart) {
+        const dx = values[0].x - panStart.pointer.x;
+        const dy = values[0].y - panStart.pointer.y;
+        if (Math.hypot(dx, dy) < 4) return;
+        moved = true;
+        dom.virtualMap.classList.add("is-panning");
+        mapView = { scale: panStart.view.scale, x: panStart.view.x + dx, y: panStart.view.y + dy };
+        applyMapView(false);
+        dismissMapGestureHint();
+      }
+    });
+
+    const finishPointer = event => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.delete(event.pointerId);
+      try { dom.virtualMap.releasePointerCapture?.(event.pointerId); } catch (_) {}
+      const values = Array.from(pointers.values());
+      if (values.length === 1) panStart = { pointer: values[0], view: { ...mapView } };
+      else panStart = null;
+      pinchStart = null;
+      if (!values.length) {
+        dom.virtualMap.classList.remove("is-panning");
+        if (moved) requestAnimationFrame(() => {
+          resolveMarkerPositions();
+          resolveMarkerLabels();
+        });
+        moved = false;
+      }
+    };
+    dom.virtualMap.addEventListener("pointerup", finishPointer);
+    dom.virtualMap.addEventListener("pointercancel", finishPointer);
+
+    dom.virtualMap.addEventListener("wheel", event => {
+      if (event.target.closest(".place-marker, .edit-toolbar, .add-place-tip")) return;
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? 1.12 : 0.89;
+      zoomMapTo(mapView.scale * factor, event.clientX, event.clientY);
+    }, { passive: false });
+
+    dom.virtualMap.addEventListener("dblclick", event => {
+      if (event.target.closest(".place-marker, .edit-toolbar, .add-place-tip")) return;
+      event.preventDefault();
+      zoomMapTo(mapView.scale * 1.35, event.clientX, event.clientY);
+    });
   }
 
   function roundMapCoordinate(value) {
@@ -470,6 +682,12 @@
   }
 
   function renderMapBase() {
+    if (mapViewCityId !== db.currentCity) {
+      mapViewCityId = db.currentCity;
+      const rect = mapViewportRect();
+      const size = updateMapContentSize();
+      mapView = { scale: 1, x: (rect.width - size.width) / 2, y: (rect.height - size.height) / 2 };
+    }
     const cityData = currentCity();
     const layout = layoutFor(db.currentCity);
     dom.currentCityName.textContent = cityData.name;
@@ -480,12 +698,14 @@
     const countText = resultCount === totalCount ? `${totalCount} 个地点` : `显示 ${resultCount} / ${totalCount} 个地点`;
     const editText = isEditMode ? " · 编辑中：可拖动标记" : "";
     dom.mapCaption.textContent = `${cityData.summary || layout?.caption || "城市漫游地图"} · ${countText}${editText}`;
+    requestAnimationFrame(() => applyMapView(false));
   }
 
   function updateMapTextScale() {
     const rect = dom.virtualMap.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    const scale = clamp((1000 / 650) * (rect.height / rect.width), 0.78, 2.85);
+    const size = updateMapContentSize();
+    const scale = clamp((1000 / 650) * (size.height / Math.max(1, size.width)), 0.78, 2.85);
     dom.mapArt.style.setProperty("--map-text-scale-x", String(scale));
   }
 
@@ -557,13 +777,13 @@
   // 地图资料坐标保持不变；仅在屏幕像素层轻微错开过密触控点，确保 44px 图标中心可点。
   function resolveMarkerPositions() {
     const markers = Array.from(dom.markerLayer.querySelectorAll(".place-marker"));
-    const mapRect = dom.virtualMap.getBoundingClientRect();
+    const mapRect = { width: dom.mapTransformLayer.clientWidth, height: dom.mapTransformLayer.clientHeight };
     if (!markers.length || !mapRect.width || !mapRect.height) return;
     const placeById = new Map(currentCity().places.map(place => [place.id, place]));
     const placed = [];
     const candidates = [{ x: 0, y: 0 }];
-    const separation = innerWidth <= 720 ? 38 : 24;
-    const step = separation + 2;
+    const separation = (innerWidth <= 720 ? 38 : 24) / Math.max(0.78, mapView.scale);
+    const step = separation + 2 / Math.max(0.78, mapView.scale);
     for (let ring = 1; ring <= 5; ring += 1) {
       for (let y = -ring; y <= ring; y += 1) {
         for (let x = -ring; x <= ring; x += 1) {
@@ -636,7 +856,7 @@
       const startY = event.clientY;
       let movedDistance = 0;
       let dragging = false;
-      marker.setPointerCapture?.(event.pointerId);
+      try { marker.setPointerCapture?.(event.pointerId); } catch (_) {}
 
       const onMove = moveEvent => {
         if (moveEvent.pointerId !== event.pointerId) return;
@@ -648,9 +868,9 @@
         marker.classList.add("dragging");
         marker.style.setProperty("--marker-nudge-x", "0px");
         marker.style.setProperty("--marker-nudge-y", "0px");
-        const rect = dom.virtualMap.getBoundingClientRect();
-        place.mapX = roundMapCoordinate((moveEvent.clientX - rect.left) / Math.max(1, rect.width) * 100);
-        place.mapY = roundMapCoordinate((moveEvent.clientY - rect.top) / Math.max(1, rect.height) * 100);
+        const point = mapPointFromClient(moveEvent.clientX, moveEvent.clientY);
+        place.mapX = roundMapCoordinate(point.x / Math.max(1, point.width) * 100);
+        place.mapY = roundMapCoordinate(point.y / Math.max(1, point.height) * 100);
         marker.dataset.displayX = String(place.mapX);
         marker.dataset.displayY = String(place.mapY);
         marker.style.left = `${place.mapX}%`;
@@ -1646,9 +1866,9 @@
 
   function createPlaceAt(event) {
     if (!addPlaceMode || !isEditMode || event.target.closest(".place-marker, .add-place-tip, .edit-toolbar")) return;
-    const rect = dom.virtualMap.getBoundingClientRect();
-    const mapX = (event.clientX - rect.left) / Math.max(1, rect.width) * 100;
-    const mapY = (event.clientY - rect.top) / Math.max(1, rect.height) * 100;
+    const point = mapPointFromClient(event.clientX, event.clientY);
+    const mapX = point.x / Math.max(1, point.width) * 100;
+    const mapY = point.y / Math.max(1, point.height) * 100;
     openAddPlaceModal(mapX, mapY);
   }
 
@@ -1874,6 +2094,14 @@
   }
 
   function bindEvents() {
+    dom.topbarToggle.addEventListener("click", () => {
+      const collapsed = !document.querySelector(".app-shell")?.classList.contains("nav-collapsed");
+      setNavigationCollapsed(collapsed);
+    });
+    dom.zoomInBtn.addEventListener("click", () => zoomMapTo(mapView.scale * 1.25));
+    dom.zoomOutBtn.addEventListener("click", () => zoomMapTo(mapView.scale / 1.25));
+    dom.resetMapViewBtn.addEventListener("click", () => resetMapView(true));
+    bindMapGestures();
     dom.searchInput.addEventListener("input", event => {
       searchText = event.target.value.trim();
       renderMapBase();
@@ -1942,6 +2170,7 @@
     });
     window.addEventListener("resize", () => {
       updateMapTextScale();
+      applyMapView(false);
       resolveMarkerPositions();
       resolveMarkerLabels();
       clampAndPlaceMascot(true);
@@ -1959,6 +2188,9 @@
   function initialise() {
     isEditMode = false;
     bindEvents();
+    let navigationCollapsed = false;
+    try { navigationCollapsed = localStorage.getItem(NAV_COLLAPSE_KEY) === "1"; } catch (_) {}
+    setNavigationCollapsed(navigationCollapsed, false);
     renderAll();
     mascotPosition = db.settings.mascotPosition;
     requestAnimationFrame(() => clampAndPlaceMascot(false));
