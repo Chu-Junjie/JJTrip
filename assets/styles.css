@@ -105,13 +105,15 @@
 body > .detail-panel.open.route-card-overlay {
   position: fixed;
   z-index: 2900;
-  top: 7vh;
+  top: 12vh;
   right: max(18px, calc((100vw - 440px) / 2));
   bottom: auto;
   left: max(18px, calc((100vw - 440px) / 2));
   width: auto;
   max-width: 440px;
-  max-height: 78vh;
+  height: min(52vh, 520px);
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
   border-radius: 24px;
   box-shadow: 0 24px 80px rgba(18, 31, 49, 0.34);
   transform: none;
@@ -135,12 +137,16 @@ body > .detail-panel.open.route-card-overlay {
     left: calc(10px + var(--safe-left));
     width: auto;
     max-width: none;
-    max-height: min(62dvh, 560px);
-    border-radius: 24px;
+    height: 50dvh;
+    max-height: 50dvh;
+    padding: 16px;
+    overflow-y: auto;
+    border-radius: 22px;
     transform: none;
   }
 
   body > .detail-panel.open.route-card-overlay > .place-gallery {
-    min-height: 170px;
+    min-height: 125px;
+    max-height: 155px;
   }
 }
