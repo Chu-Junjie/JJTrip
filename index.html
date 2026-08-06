@@ -7,7 +7,7 @@
   <meta name="description" content="JJTrip 中文城市旅行攻略、地点管理与自规划路线">
   <title>JJTrip · 中文城市攻略与路线规划</title>
   <link rel="icon" type="image/png" href="./assets/jjtrip-app-icon.png">
-  <link rel="stylesheet" href="./assets/styles.css?v=20260806-places-18">
+  <link rel="stylesheet" href="./assets/styles.css?v=20260806-no-base64-1">
 </head>
 <body>
   <div class="app-shell">
@@ -343,46 +343,48 @@ const SEED={
   }
 };
   </script>
-  <script src="./assets/map-layouts.js?v=20260806-places-18"></script>
+  <script src="./assets/map-layouts.js?v=20260806-no-base64-1"></script>
   <script>
   (() => {
     const dataKey = "jjtrip_mvp_v3";
-    const migrationKey = "jjtrip_places_18_v1";
+    const recoveryKey = "jjtrip_mvp_v3_recovery";
+    const migrationKey = "jjtrip_remove_base64_v1";
+    const cityIds = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"];
+    const clean = value => {
+      if (typeof value === "string" && /^data:image\//i.test(value.trim())) return undefined;
+      if (Array.isArray(value)) return value.map(clean).filter(item => item !== undefined);
+      if (value && typeof value === "object") {
+        const result = {};
+        for (const [key, item] of Object.entries(value)) {
+          const cleaned = clean(item);
+          if (cleaned !== undefined) result[key] = cleaned;
+        }
+        return result;
+      }
+      return value;
+    };
     try {
-      if (localStorage.getItem(migrationKey) === "1") return;
-      const raw = localStorage.getItem(dataKey);
-      if (raw) {
-        const data = JSON.parse(raw);
-        for (const cityId of ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]) {
-          const city = data.cities?.[cityId];
-          if (!city) continue;
-          city.places = Array.isArray(city.places) ? city.places.slice(0, 18) : [];
-          const validIds = new Set(city.places.map(place => String(place.id)));
-          if (Array.isArray(city.routePlans)) {
-            for (const plan of city.routePlans) {
-              plan.route = Array.isArray(plan.route) ? plan.route.filter(id => validIds.has(String(id))) : [];
-              if (plan.segments && typeof plan.segments === "object") {
-                plan.segments = Object.fromEntries(Object.entries(plan.segments).filter(([key]) => {
-                  const [startId, endId] = key.split("__");
-                  return validIds.has(startId) && validIds.has(endId);
-                }));
-              }
+      if (localStorage.getItem(migrationKey) !== "1") {
+        for (const key of [dataKey, recoveryKey]) {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          try {
+            const data = clean(JSON.parse(raw));
+            for (const cityId of cityIds) {
+              const city = data?.cities?.[cityId];
+              if (!city) continue;
+              city.places = Array.isArray(city.places) ? city.places.slice(0, 18) : [];
             }
-          }
-          city.route = Array.isArray(city.route) ? city.route.filter(id => validIds.has(String(id))) : [];
-          if (city.segments && typeof city.segments === "object") {
-            city.segments = Object.fromEntries(Object.entries(city.segments).filter(([key]) => {
-              const [startId, endId] = key.split("__");
-              return validIds.has(startId) && validIds.has(endId);
-            }));
+            localStorage.setItem(key, JSON.stringify(data));
+          } catch (_) {
+            localStorage.removeItem(key);
           }
         }
-        localStorage.setItem(dataKey, JSON.stringify(data));
+        localStorage.setItem(migrationKey, "1");
       }
-      localStorage.setItem(migrationKey, "1");
     } catch (_) {}
   })();
-</script>
-<script src="./assets/app.js?v=20260806-places-18"></script>
+  </script>
+  <script src="./assets/app.js?v=20260806-no-base64-1"></script>
 </body>
 </html>

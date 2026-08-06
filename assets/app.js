@@ -9,8 +9,6 @@
   const MAP_MIN_SCALE = 0.55;
   const MAP_MAX_SCALE = 3.6;
   const MAX_PLACE_IMAGES = 12;
-  const MAX_PLACE_IMAGE_CHARACTERS = 3200000;
-  const MAX_SOURCE_IMAGE_BYTES = 15 * 1024 * 1024;
   const EDIT_PASSWORD_HASH = 2576725674;
   const FIXED_CITY_IDS = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"];
   const TYPE_ALIASES = {
@@ -592,6 +590,10 @@
     return { mapX: roundMapCoordinate(x + jitterX), mapY: roundMapCoordinate(y + jitterY) };
   }
 
+  function isBase64ImageSource(value) {
+  return /^data:image\//i.test(String(value || "").trim());
+}
+
   function normalisePlace(cityId, input, placeIndex) {
     const place = isPlainObject(input) ? input : {};
     place.id = String(place.id || `${cityId}_place_${placeIndex + 1}`);
@@ -605,11 +607,14 @@
     delete place.originalPrice;
     delete place.source;
     const legacyImage = String(place.image || "").trim();
+    const safeLegacyImage = isBase64ImageSource(legacyImage) ? "" : legacyImage;
     const seedPlace = SEED?.cities?.[cityId]?.places?.find(item => String(item?.id) === place.id);
     const seedImages = Array.isArray(seedPlace?.images) ? seedPlace.images : [];
     place.images = Array.isArray(place.images)
-      ? Array.from(new Set(place.images.map(image => String(image || "").trim()).filter(Boolean)))
-      : legacyImage ? [legacyImage] : [];
+      ? Array.from(new Set(place.images
+          .map(image => String(image || "").trim())
+          .filter(image => image && !isBase64ImageSource(image))))
+      : safeLegacyImage ? [safeLegacyImage] : [];
     if (!place.images.length && seedImages.length) place.images = [...seedImages];
     place.image = place.images[0] || "";
     place.autoCover = Boolean(place.autoCover || (place.images.length === 1 && /\/assets\/place-covers\//.test(place.images[0])));
@@ -750,9 +755,7 @@
   }
 
   function databaseReplacer(key, value) {
-    if (key === "image" && typeof value === "string" && value.startsWith("data:image/") && Array.isArray(this.images) && this.images[0] === value) {
-      return undefined;
-    }
+    if (typeof value === "string" && isBase64ImageSource(value)) return undefined;
     return value;
   }
 
@@ -1506,7 +1509,7 @@
     const images = Array.isArray(place.images) ? place.images : [];
     const info = typeInfo(place);
     const choices = iconChoices(place.type);
-    const imageItems = images.map((image, index) => `<div class="image-edit-item"><img src="${escapeHtml(image)}" alt=""><span>${image.startsWith("data:image/") ? "本地上传照片" : escapeHtml(image)}</span><button class="btn-danger" type="button" data-remove-image="${index}" aria-label="删除第 ${index + 1} 张照片">删除</button></div>`).join("");
+    const imageItems = images.map((image, index) => `<div class="image-edit-item"><img src="${escapeHtml(image)}" alt=""><span>${escapeHtml(image)}</span><button class="btn-danger" type="button" data-remove-image="${index}" aria-label="删除第 ${index + 1} 张照片">删除</button></div>`).join("");
     const iconButtons = choices.map(icon => `<button class="icon-choice${place.emoji === icon ? " active" : ""}" type="button" data-place-icon="${escapeHtml(icon)}" aria-label="使用图标 ${escapeHtml(icon)}" aria-pressed="${place.emoji === icon}">${escapeHtml(icon)}</button>`).join("");
     const travelIconButtons = ["🏨", "🛏️", "✈️", "🛫", "🚄", "🚅", "🚉"].map(icon => `<button class="icon-choice${place.emoji === icon ? " active" : ""}" type="button" data-place-icon="${escapeHtml(icon)}" aria-label="使用快捷图标 ${escapeHtml(icon)}" aria-pressed="${place.emoji === icon}">${escapeHtml(icon)}</button>`).join("");
     return `<div class="editor-banner"><span class="editor-banner-mark" aria-hidden="true">✦</span><div><b>编辑地点</b><small>修改内容会自动保存在这台设备</small></div><span class="autosave-badge">自动保存</span></div>
@@ -1534,8 +1537,8 @@
         <div class="editor-section-title" id="photoEditorTitle"><span>04</span><div><b>地点照片</b><small>最多 12 张，可在详情中左右滑动</small></div><span class="section-count">${images.length}/12</span></div>
         <div class="photo-auto-row"><div><b>自动实景图</b><small>${place.photoResolved ? "已匹配实景图" : "按地点名称与坐标从 Wikimedia/Wikipedia 匹配"}</small></div><button class="btn-soft" id="autoPhotoBtn" type="button">${place.photoResolved ? "重新匹配" : "立即匹配"}</button></div>
         <div class="field"><label for="imageUrlInput">添加图片网址</label><div class="image-add-row"><input id="imageUrlInput" type="text" inputmode="url" placeholder="https://… 或 ./assets/…"><button class="btn" id="addImageUrlBtn" type="button">添加</button></div></div>
-        <div class="field"><label for="imageUpload">上传本地照片（可多选）</label><input id="imageUpload" type="file" accept="image/*" multiple><p class="field-help">图片会压缩后保存在本机；单张原图不超过 15 MB。</p></div>
-        ${imageItems ? `<div class="image-edit-list" aria-label="已添加照片">${imageItems}</div>` : `<div class="editor-empty-state"><span aria-hidden="true">🖼️</span><div><b>还没有地点照片</b><small>可上传本地照片或添加图片网址</small></div></div>`}
+        <p class="field-help">为避免大型 Base64 图片拖慢加载，已停用本地照片上传；请使用图片网址或自动实景图。</p>
+        ${imageItems ? `<div class="image-edit-list" aria-label="已添加照片">${imageItems}</div>` : `<div class="editor-empty-state"><span aria-hidden="true">🖼️</span><div><b>还没有地点照片</b><small>可添加图片网址或匹配自动实景图</small></div></div>`}
       </section>
       <section class="editor-section" aria-labelledby="manageEditorTitle">
         <div class="editor-section-title" id="manageEditorTitle"><span>05</span><div><b>地点管理</b><small>调整地图位置或删除地点</small></div></div>
@@ -1696,7 +1699,7 @@
       const source = input.value.trim();
       if (!source) return;
       if (!isSupportedImageSource(source)) {
-        showToast("图片网址无效，请使用 http、https、data:image 或相对路径");
+        showToast("图片网址无效，请使用 http、https 或相对路径");
         return;
       }
       if (place.images.includes(source)) {
@@ -1718,42 +1721,11 @@
       if (!confirm(`确定删除第 ${imageIndex + 1} 张照片吗？`)) return;
       commitPlaceImages(place, place.images.filter((_, index) => index !== imageIndex), "照片已删除", editorCityId);
     }));
-    dom.detailPanel.querySelector("#imageUpload").addEventListener("change", async event => {
-      const input = event.target;
-      const files = Array.from(input.files || []).filter(file => file.type.startsWith("image/"));
-      if (!files.length) return;
-      const remaining = MAX_PLACE_IMAGES - place.images.length;
-      if (files.length > remaining) {
-        input.value = "";
-        showToast(`每个地点最多保存 ${MAX_PLACE_IMAGES} 张照片，请减少本次选择`);
-        return;
-      }
-      if (files.some(file => file.size > MAX_SOURCE_IMAGE_BYTES)) {
-        input.value = "";
-        showToast("单张原始照片不能超过 15 MB，请先缩小后再上传");
-        return;
-      }
-      input.disabled = true;
-      try {
-        const compressed = [];
-        for (const file of files) compressed.push(await compressImage(file));
-        if (!isLivePlace(place, editorCityId)) {
-          showToast("地点已切换或删除，本次照片没有保存");
-          return;
-        }
-        commitPlaceImages(place, [...place.images, ...compressed], `已添加 ${compressed.length} 张本地照片`, editorCityId);
-      } catch (_) {
-        showToast("图片处理失败，本次照片没有保存");
-      } finally {
-        input.value = "";
-        input.disabled = false;
-      }
-    });
     dom.detailPanel.querySelector("#deletePlaceBtn").addEventListener("click", () => deletePlace(place));
   }
 
   function isSupportedImageSource(source) {
-    if (/^data:image\//i.test(source)) return true;
+    if (isBase64ImageSource(source)) return false;
     try {
       const url = new URL(source, location.href);
       return ["http:", "https:", "file:"].includes(url.protocol);
@@ -1776,13 +1748,13 @@
     const previousImage = place.image;
     const previousAutoDisabled = place.photoAutoDisabled;
     const previousResolved = place.photoResolved;
+    if (nextImages.some(isBase64ImageSource)) {
+      showToast("不再支持 Base64 图片，请改用图片网址");
+      return false;
+    }
     const normalisedImages = Array.from(new Set(nextImages.map(image => String(image || "").trim()).filter(Boolean)));
     if (normalisedImages.length > MAX_PLACE_IMAGES) {
       showToast(`每个地点最多保存 ${MAX_PLACE_IMAGES} 张照片`);
-      return false;
-    }
-    if (normalisedImages.reduce((total, image) => total + image.length, 0) > MAX_PLACE_IMAGE_CHARACTERS) {
-      showToast("该地点照片总容量过大，请删除部分照片或改用图片网址");
       return false;
     }
     place.images = normalisedImages;
@@ -1803,34 +1775,6 @@
     return true;
   }
 
-  function compressImage(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        const image = new Image();
-        image.onerror = reject;
-        image.onload = () => {
-          try {
-            if (!image.width || !image.height) throw new Error("无法读取图片尺寸");
-            const maximum = 1280;
-            const scale = Math.min(1, maximum / Math.max(image.width, image.height));
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.max(1, Math.round(image.width * scale));
-            canvas.height = Math.max(1, Math.round(image.height * scale));
-            const context = canvas.getContext("2d");
-            if (!context) throw new Error("无法处理图片");
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL("image/jpeg", 0.78));
-          } catch (error) {
-            reject(error);
-          }
-        };
-        image.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
 
   function deletePlace(place) {
     if (!isEditMode) return;
