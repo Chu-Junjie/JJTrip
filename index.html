@@ -7,7 +7,7 @@
   <meta name="description" content="JJTrip 中文城市旅行攻略、地点管理与自规划路线">
   <title>JJTrip · 中文城市攻略与路线规划</title>
   <link rel="icon" type="image/png" href="./assets/jjtrip-app-icon.png">
-  <link rel="stylesheet" href="./assets/styles.css?v=20260806-performance-2">
+  <link rel="stylesheet" href="./assets/styles.css?v=20260806-places-18">
 </head>
 <body>
   <div class="app-shell">
@@ -259,8 +259,6 @@ const SEED={
       poi("hk_australia","澳洲牛奶公司","餐厅",22.3047,114.1712,"炒蛋多士、炖奶等港式快节奏餐厅候选。","营业时间及休息日需复核","HK$","佐敦白加士街47号","更适合记录用餐，不建议影响店内通行。",OFFICIAL.hk),
       poi("hk_templestreet","庙街夜市","小吃",22.3067,114.1697,"夜市、小吃、街头招牌与老香港氛围。","傍晚后较活跃","HK$","油麻地庙街","雨后霓虹、街牌和摊档纵深。",OFFICIAL.hk),
       poi("hk_hopyik","合益泰小食","小吃",22.3305,114.1607,"深水埗肠粉小吃候选。","营业时间需复核","HK$","桂林街121号","店面空间紧凑，以用餐为主。","https://www.discoverhongkong.cn/neighbourhoods/sham-shui-po.html"),
-      poi("hk_westkowloonstation","香港西九龙站","高铁站",22.3049,114.1615,"连接香港与内地多座城市的高铁枢纽。","车次与开放时间需复核","","柯士甸道西3号","可拍流线型屋顶、玻璃幕墙和城市天际线。","","🚄","Hong Kong West Kowloon railway station"),
-      poi("hk_peninsula","香港半岛酒店","酒店",22.2951,114.1718,"尖沙咀经典历史酒店与维港地标。","公共区域开放情况需复核","","梳士巴利道","从半岛酒店外立面与钟楼方向拍摄经典城市构图。","","🏨","The Peninsula Hong Kong")
     ]),
     singapore:city("新加坡",[1.2926,103.8535],13,"滨海湾、多元文化街区、小贩中心和城市建筑机位地点库。","wgs84",[
       poi("sg_merlion","鱼尾狮公园","景点",1.2868,103.8545,"新加坡地标与滨海湾经典视角。","全天","","One Fullerton","广角拍鱼尾狮与金沙；清晨人少。",OFFICIAL.sg),
@@ -281,8 +279,6 @@ const SEED={
       poi("sg_tekka","竹脚中心","小吃",1.3065,103.8506,"印度与本地小贩美食、市场。","摊位时间不同","SGD","665 Buffalo Road","市场色彩丰富，注意摊贩和顾客隐私。",OFFICIAL.sg),
       poi("sg_tiong","中峇鲁巴刹","小吃",1.2852,103.8322,"传统市场与熟食中心。","摊位时间不同","SGD","30 Seng Poh Road","周边装饰艺术风格住宅适合街拍。",OFFICIAL.sg),
       poi("sg_jewel","星耀樟宜雨漩涡","景点",1.3602,103.9897,"机场室内瀑布与花园。","开放时间需复核","","78 Airport Boulevard","高层环廊拍瀑布全景，夜间灯光更明显。","https://www.jewelchangiairport.com/"),
-      poi("sg_changi","新加坡樟宜机场","机场",1.3644,103.9915,"国际航空枢纽，可与星耀樟宜一并游览。","航班与航站楼信息需复核","","Airport Boulevard","控制塔、航站楼与雨漩涡适合作为旅行开场照片。","","✈️","Singapore Changi Airport"),
-      poi("sg_raffleshotel","莱佛士酒店","酒店",1.2949,103.8545,"新加坡历史酒店与殖民时期建筑地标。","公共区域开放情况需复核","","1 Beach Road","白色拱廊、庭院与棕榈树适合建筑摄影。","","🏨","Raffles Hotel Singapore")
     ]),
     shenzhen:city("深圳",[22.5435,114.0579],12,"现代城市地标、滨海公园、创意街区、古城与深圳美食地点库。","gcj02",[
       poi("sz_civic","深圳市民中心","景点",22.5431,114.0579,"深圳中心区城市地标。","外部全天","","福中三路","中轴线、屋顶和夜间灯光构图。",OFFICIAL.sz),
@@ -303,8 +299,6 @@ const SEED={
       poi("sz_happyharbor","欢乐港湾摩天轮","拍照机位",22.5550,113.8870,"滨海摩天轮和城市商业区。","开放与票务需复核","CNY","宝兴路8号","日落后拍摩天轮倒影和灯光。",OFFICIAL.sz),
       poi("sz_baheri","八合里牛肉火锅（福田候选）","餐厅",22.5397,114.0491,"潮汕牛肉火锅餐厅候选，具体分店可修改。","营业时间需复核","CNY","福田中心区","以用餐为主。",OFFICIAL.sz),
       poi("sz_runyuan","润园四季椰子鸡（车公庙候选）","餐厅",22.5325,114.0215,"深圳代表性椰子鸡餐厅候选，具体分店可修改。","营业时间需复核","CNY","车公庙一带","以用餐为主。",OFFICIAL.sz),
-      poi("sz_northstation","深圳北站","高铁站",22.6097,114.0296,"深圳重要高铁枢纽，连接香港与内地主要城市。","车次与开放时间需复核","","致远中路28号","站房大跨度屋顶、广场与列车进站画面。","","🚄","Shenzhen North railway station"),
-      poi("sz_airport","深圳宝安国际机场","机场",22.6393,113.8107,"深圳主要国际机场，以流线型航站楼建筑著称。","航班与航站楼信息需复核","","机场南路","航站楼蜂窝天花和候机区适合建筑摄影。","","✈️","Shenzhen Bao'an International Airport")
     ]),
     macau:city("澳门",[22.1838,113.5455],13,"历史城区、氹仔葡韵、路氹夜景、葡挞与澳门小吃地点库。","gcj02",[
       poi("mo_ruins","大三巴牌坊","景点",22.1975,113.5407,"澳门历史城区代表性世界遗产。","开放时间需复核","","耶稣会纪念广场","清晨拍正面，侧巷可避开人群。","https://www.macaotourism.gov.mo/zh-hans/macao-full-of-fun/world-heritage-tour-in-central-district"),
@@ -325,8 +319,6 @@ const SEED={
       poi("mo_venetian","澳门威尼斯人","景点",22.1485,113.5615,"室内运河与大型度假区建筑。","开放时间需复核","","路氹金光大道","室内拱廊和夜间外立面。",OFFICIAL.mo),
       poi("mo_londoner","澳门伦敦人外景","拍照机位",22.1464,113.5660,"欧式建筑群与夜间灯光。","外部全天","","路氹金光大道","马路对面使用长焦压缩建筑。",OFFICIAL.mo),
       poi("mo_lordstow","安德鲁饼店（路环）","小吃",22.1167,113.5519,"路环葡挞与慢节奏街区候选。","营业时间需复核","MOP","路环市区市中心","可结合路环码头与彩色街屋。",OFFICIAL.mo),
-      poi("mo_airport","澳门国际机场","机场",22.1496,113.5916,"澳门主要航空口岸，位于氹仔东侧。","航班与航站楼信息需复核","","伟龙马路","可拍航站楼、跑道方向与海岸景观。","","✈️","Macau International Airport"),
-      poi("mo_grandlisboa","澳门新葡京酒店","酒店",22.1896,113.5439,"澳门半岛辨识度极高的城市酒店地标。","公共区域开放情况需复核","","葡京路","从南湾湖或议事亭方向拍摄金色建筑轮廓。","","🏨","Grand Lisboa Macau")
     ]),
     kualalumpur:city("吉隆坡",[3.1518,101.7047],13,"双子塔、历史城区、宗教建筑、多元美食与城市夜景地点库。","wgs84",[
       poi("kl_petronas","国家石油双子塔","景点",3.1579,101.7117,"吉隆坡代表性城市地标。","开放与票务需复核","MYR","Kuala Lumpur City Centre","KLCC公园、喷水池和正门广角机位。",OFFICIAL.kl),
@@ -347,13 +339,50 @@ const SEED={
       poi("kl_lot10","十号胡同","小吃",3.1466,101.7110,"商场内集合多家华人传统小吃。","营业时间需复核","MYR","50 Jalan Sultan Ismail","以用餐为主。",OFFICIAL.kl),
       poi("kl_villagepark","Village Park Restaurant","餐厅",3.1430,101.6273,"椰浆饭热门餐厅候选。","营业时间需复核","MYR","Damansara Uptown","以用餐为主，距离市中心较远。",OFFICIAL.kl),
       poi("kl_pavilion","武吉免登十字路口","拍照机位",3.1491,101.7132,"商业区人流、灯光与城市街拍。","全天","","Bukit Bintang","天桥或街角拍车流和广告屏。",OFFICIAL.kl),
-      poi("kl_trx","TRX Exchange屋顶公园","公园",3.1418,101.7188,"现代商业区、屋顶绿地和城市建筑。","开放时间需复核","","Tun Razak Exchange","傍晚拍现代天际线和花园。",OFFICIAL.kl),
-      poi("kl_klia","吉隆坡国际机场","机场",2.7456,101.7072,"马来西亚主要国际航空枢纽。","航班与航站楼信息需复核","","Sepang, Selangor","航站楼屋顶、机场快线与起降飞机构图。","","✈️","Kuala Lumpur International Airport")
     ])
   }
 };
   </script>
-  <script src="./assets/map-layouts.js?v=20260806-performance-2"></script>
-  <script src="./assets/app.js?v=20260806-performance-2"></script>
+  <script src="./assets/map-layouts.js?v=20260806-places-18"></script>
+  <script>
+  (() => {
+    const dataKey = "jjtrip_mvp_v3";
+    const migrationKey = "jjtrip_places_18_v1";
+    try {
+      if (localStorage.getItem(migrationKey) === "1") return;
+      const raw = localStorage.getItem(dataKey);
+      if (raw) {
+        const data = JSON.parse(raw);
+        for (const cityId of ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]) {
+          const city = data.cities?.[cityId];
+          if (!city) continue;
+          city.places = Array.isArray(city.places) ? city.places.slice(0, 18) : [];
+          const validIds = new Set(city.places.map(place => String(place.id)));
+          if (Array.isArray(city.routePlans)) {
+            for (const plan of city.routePlans) {
+              plan.route = Array.isArray(plan.route) ? plan.route.filter(id => validIds.has(String(id))) : [];
+              if (plan.segments && typeof plan.segments === "object") {
+                plan.segments = Object.fromEntries(Object.entries(plan.segments).filter(([key]) => {
+                  const [startId, endId] = key.split("__");
+                  return validIds.has(startId) && validIds.has(endId);
+                }));
+              }
+            }
+          }
+          city.route = Array.isArray(city.route) ? city.route.filter(id => validIds.has(String(id))) : [];
+          if (city.segments && typeof city.segments === "object") {
+            city.segments = Object.fromEntries(Object.entries(city.segments).filter(([key]) => {
+              const [startId, endId] = key.split("__");
+              return validIds.has(startId) && validIds.has(endId);
+            }));
+          }
+        }
+        localStorage.setItem(dataKey, JSON.stringify(data));
+      }
+      localStorage.setItem(migrationKey, "1");
+    } catch (_) {}
+  })();
+</script>
+<script src="./assets/app.js?v=20260806-places-18"></script>
 </body>
 </html>
