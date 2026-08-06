@@ -4098,3 +4098,77 @@ textarea:disabled {
 .photo-auto-row b { color: #24415f; font-size: 12px; }
 .photo-auto-row small { color: #718399; font-size: 10px; line-height: 1.4; }
 .photo-auto-row button { flex: 0 0 auto; }
+
+
+/* v7.1 compact place card, badge-free favourites and hideable mascot. */
+.bottom-nav-item i,
+#favoriteCountBadge {
+  display: none !important;
+}
+
+.floating-mascot.mascot-hidden {
+  right: 0;
+  left: auto !important;
+  top: 50% !important;
+  width: 42px;
+  height: 58px;
+  min-height: 58px;
+  overflow: hidden;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-right: 0;
+  border-radius: 18px 0 0 18px;
+  background: rgba(255, 255, 255, 0.96) url("./jjtrip-mascot-3d-avatar.png") center / 34px 34px no-repeat;
+  box-shadow: -8px 8px 24px rgba(31, 60, 89, 0.18);
+  filter: none;
+  transform: translateY(-50%);
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.floating-mascot.mascot-hidden::before {
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  color: #1455d9;
+  content: "‹";
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.floating-mascot.mascot-hidden::after,
+.floating-mascot.mascot-hidden img,
+.floating-mascot.mascot-hidden .mascot-tip {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .detail-panel:not(.editing) {
+    top: auto;
+    right: calc(12px + var(--safe-right));
+    bottom: calc(84px + var(--safe-bottom));
+    left: calc(12px + var(--safe-left));
+    width: auto;
+    max-height: min(62dvh, 560px);
+    padding: 16px;
+    border-radius: 22px;
+    overscroll-behavior: contain;
+  }
+
+  .detail-panel.editing {
+    max-height: min(78dvh, 720px);
+  }
+
+  .detail-panel.route-visible:not(.editing) {
+    bottom: calc(148px + var(--safe-bottom));
+    max-height: min(50dvh, 470px);
+  }
+
+  .floating-mascot.mascot-hidden {
+    width: 38px;
+    height: 54px;
+    min-height: 54px;
+    background-size: 30px 30px;
+  }
+}

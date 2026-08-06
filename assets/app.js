@@ -5,6 +5,7 @@
   const STORAGE_KEY = "jjtrip_mvp_v3";
   const RECOVERY_KEY = "jjtrip_mvp_v3_recovery";
   const NAV_COLLAPSE_KEY = "jjtrip_nav_collapsed";
+  const MASCOT_HIDDEN_KEY = "jjtrip_mascot_hidden";
   const MAP_MIN_SCALE = 0.55;
   const MAP_MAX_SCALE = 3.6;
   const MAX_PLACE_IMAGES = 12;
@@ -179,6 +180,7 @@
   let drawerExpanded = false;
   let editingSegment = null;
   let mascotPosition = null;
+  let mascotHidden = false;
   let saveFailureUntil = 0;
   let mapView = { scale: 1, x: 0, y: 0 };
   let mapContentSize = { width: 0, height: 0 };
@@ -861,7 +863,6 @@
 
   function renderBottomNav() {
     if (!dom.bottomNav) return;
-    const favoriteCount = currentCity().places.filter(place => place.favorite).length;
     dom.bottomNav.querySelectorAll("[data-nav]").forEach(button => {
       const isActive = button.dataset.nav === activeNav;
       button.classList.toggle("active", isActive);
@@ -869,8 +870,8 @@
       else button.removeAttribute("aria-current");
     });
     if (dom.favoriteCountBadge) {
-      dom.favoriteCountBadge.textContent = String(favoriteCount);
-      dom.favoriteCountBadge.hidden = favoriteCount <= 0;
+      dom.favoriteCountBadge.textContent = "";
+      dom.favoriteCountBadge.hidden = true;
     }
   }
 
@@ -2611,6 +2612,17 @@
     return first.left < second.right + padding && first.right > second.left - padding && first.top < second.bottom + padding && first.bottom > second.top - padding;
   }
 
+  function setMascotHidden(hidden, save = true) {
+    mascotHidden = Boolean(hidden);
+    dom.mascot.classList.toggle("mascot-hidden", mascotHidden);
+    dom.mascot.setAttribute("aria-label", mascotHidden ? "显示旅行搭子" : "打开旅行搭子设置");
+    dom.mascot.title = mascotHidden ? "显示旅行搭子" : "打开旅行搭子设置";
+    if (save) {
+      try { localStorage.setItem(MASCOT_HIDDEN_KEY, mascotHidden ? "1" : "0"); } catch (_) {}
+    }
+    if (!mascotHidden) requestAnimationFrame(() => clampAndPlaceMascot(false));
+  }
+
   function mascotBounds() {
     const rect = dom.mascot.getBoundingClientRect();
     const width = rect.width || (innerWidth <= 720 ? 62 : 72);
@@ -2664,6 +2676,7 @@
   }
 
   function clampAndPlaceMascot(save = false) {
+    if (mascotHidden) return;
     const saved = mascotPosition || db.settings.mascotPosition;
     placeMascot(saved, save);
   }
@@ -2755,23 +2768,30 @@
   function bindMascotPointer() {
     dom.mascot.addEventListener("pointerdown", event => {
       if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (mascotHidden) {
+        event.preventDefault();
+        setMascotHidden(false);
+        return;
+      }
       event.preventDefault();
       const startX = event.clientX;
       const startY = event.clientY;
       const origin = mascotPosition || clampMascotPosition(db.settings.mascotPosition);
       let moved = 0;
       let dragging = false;
+      let latestDx = 0;
+      let latestDy = 0;
       dom.mascot.setPointerCapture?.(event.pointerId);
 
       const move = moveEvent => {
         if (moveEvent.pointerId !== event.pointerId) return;
-        const dx = moveEvent.clientX - startX;
-        const dy = moveEvent.clientY - startY;
-        moved = Math.hypot(dx, dy);
+        latestDx = moveEvent.clientX - startX;
+        latestDy = moveEvent.clientY - startY;
+        moved = Math.hypot(latestDx, latestDy);
         if (moved < 7) return;
         dragging = true;
         dom.mascot.classList.add("dragging");
-        placeMascot({ x: origin.x + dx, y: origin.y + dy }, false);
+        placeMascot({ x: origin.x + latestDx, y: origin.y + latestDy }, false);
       };
 
       const finish = endEvent => {
@@ -2779,8 +2799,15 @@
         cleanup();
         dom.mascot.classList.remove("dragging");
         try { dom.mascot.releasePointerCapture?.(event.pointerId); } catch (_) {}
-        if (dragging) placeMascot(mascotPosition, true);
-        else if (moved < 7) openSettings();
+        const hideBySwipe = dragging && latestDx >= 64 && Math.abs(latestDx) > Math.abs(latestDy) * 1.15;
+        if (hideBySwipe) {
+          setMascotHidden(true);
+          showToast("旅行搭子已隐藏，点击右侧小图标可恢复");
+        } else if (dragging) {
+          placeMascot(mascotPosition, true);
+        } else if (moved < 7) {
+          openSettings();
+        }
       };
 
       const cancel = cancelEvent => {
@@ -2800,7 +2827,9 @@
       dom.mascot.addEventListener("pointercancel", cancel);
     });
     dom.mascot.addEventListener("click", event => {
-      if (event.detail === 0) openSettings();
+      if (event.detail !== 0) return;
+      if (mascotHidden) setMascotHidden(false);
+      else openSettings();
     });
   }
 
@@ -2834,8 +2863,14 @@
     dom.renameRouteBtn.addEventListener("click", renameActiveRoutePlan);
     dom.deleteRouteBtn.addEventListener("click", deleteActiveRoutePlan);
     document.addEventListener("pointerdown", event => {
-      if (!event.target.closest(".search-shell")) setSearchExpanded(false);
-      if (!event.target.closest(".city-switcher")) setCityPopover(false);
+      const target = event.target;
+      if (!target.closest?.(".search-shell")) setSearchExpanded(false);
+      if (!target.closest?.(".city-switcher")) setCityPopover(false);
+      if (dom.detailPanel.classList.contains("open")
+          && !target.closest?.("#detailPanel")
+          && !target.closest?.(".place-marker")) {
+        closeDetail();
+      }
     });
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") {
@@ -2954,10 +2989,14 @@
     isEditMode = false;
     bindEvents();
     let navigationCollapsed = false;
-    try { navigationCollapsed = localStorage.getItem(NAV_COLLAPSE_KEY) === "1"; } catch (_) {}
+    try {
+      navigationCollapsed = localStorage.getItem(NAV_COLLAPSE_KEY) === "1";
+      mascotHidden = localStorage.getItem(MASCOT_HIDDEN_KEY) === "1";
+    } catch (_) {}
     setNavigationCollapsed(navigationCollapsed, false);
-    renderAll();
     mascotPosition = db.settings.mascotPosition;
+    renderAll();
+    setMascotHidden(mascotHidden, false);
     requestAnimationFrame(() => clampAndPlaceMascot(false));
     if (!damagedStorageRaw) saveDatabase();
     if (loadWarning) setTimeout(() => showToast(loadWarning), 250);
