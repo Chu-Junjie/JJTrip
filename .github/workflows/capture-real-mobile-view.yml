@@ -1,0 +1,82 @@
+name: Capture real JJTrip mobile view
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@1.54.2
+          npx playwright install --with-deps chromium
+
+      - name: Start JJTrip locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/jjtrip-server.log 2>&1 &
+          echo $! > /tmp/jjtrip-server.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/jjtrip-server.log
+          exit 1
+
+      - name: Capture actual mobile entry viewport
+        run: |
+          cat > /tmp/capture-mobile.js <<'JS'
+          const { chromium } = require('playwright');
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              viewport: { width: 390, height: 844 },
+              screen: { width: 390, height: 844 },
+              deviceScaleFactor: 2,
+              isMobile: true,
+              hasTouch: true,
+              locale: 'zh-CN',
+              colorScheme: 'light'
+            });
+            const page = await context.newPage();
+            page.on('console', message => console.log(`[browser:${message.type()}] ${message.text()}`));
+            page.on('pageerror', error => console.log(`[pageerror] ${error.message}`));
+            await page.goto('http://127.0.0.1:4173/?capture=real-mobile', {
+              waitUntil: 'networkidle',
+              timeout: 120000
+            });
+            await page.waitForTimeout(3000);
+            await page.screenshot({
+              path: 'mobile-real-view.png',
+              fullPage: false
+            });
+            console.log('title:', await page.title());
+            console.log('viewport:', await page.viewportSize());
+            await browser.close();
+          })();
+          JS
+          NODE_PATH="$PWD/node_modules" node /tmp/capture-mobile.js
+          file mobile-real-view.png
+
+      - name: Commit screenshot and remove temporary workflow
+        run: |
+          rm -f .github/workflows/capture-real-mobile-view.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mobile-real-view.png .github/workflows/capture-real-mobile-view.yml
+          git commit -m "docs: add real JJTrip mobile entry view"
+          git push origin HEAD:main
