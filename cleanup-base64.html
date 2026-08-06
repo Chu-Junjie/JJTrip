@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2563eb">
+  <title>JJTrip · 清理大型图片数据</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#eef6ff;color:#203047}body{display:grid;min-height:100vh;place-items:center;padding:24px}main{width:min(560px,100%);padding:28px;border:1px solid #bfdbfe;border-radius:24px;background:#fff;box-shadow:0 18px 50px rgba(31,60,89,.15)}h1{margin:0 0 12px;color:#1455d9;font-size:26px}p{line-height:1.75}.result{margin:18px 0;padding:14px;border-radius:14px;background:#eff6ff;font-weight:700;white-space:pre-line}a{display:inline-flex;min-height:44px;align-items:center;justify-content:center;padding:10px 18px;border-radius:12px;color:#fff;background:#2563eb;text-decoration:none;font-weight:800}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>正在清理大型 Base64 图片</h1>
+    <p>只会删除 JJTrip 当前网站域名下存储的 <code>data:image/…</code> 图片内容，地点、路线、收藏和文字资料会保留。</p>
+    <div class="result" id="result">正在检查本地数据…</div>
+    <a href="./?cleaned=base64-20260806">返回 JJTrip</a>
+  </main>
+  <script>
+    (() => {
+      let removedImages = 0;
+      let rewrittenKeys = 0;
+      let removedKeys = 0;
+
+      const clean = value => {
+        if (typeof value === "string" && /^data:image\//i.test(value.trim())) {
+          removedImages += 1;
+          return undefined;
+        }
+        if (Array.isArray(value)) {
+          return value.map(clean).filter(item => item !== undefined);
+        }
+        if (value && typeof value === "object") {
+          const result = {};
+          for (const [key, item] of Object.entries(value)) {
+            const cleaned = clean(item);
+            if (cleaned !== undefined) result[key] = cleaned;
+          }
+          return result;
+        }
+        return value;
+      };
+
+      try {
+        const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index)).filter(Boolean);
+        for (const key of keys) {
+          const raw = localStorage.getItem(key);
+          if (!raw || !/data:image\//i.test(raw)) continue;
+          try {
+            const cleaned = clean(JSON.parse(raw));
+            localStorage.setItem(key, JSON.stringify(cleaned));
+            rewrittenKeys += 1;
+          } catch (_) {
+            localStorage.removeItem(key);
+            removedKeys += 1;
+          }
+        }
+        localStorage.setItem("jjtrip_remove_base64_v1", "1");
+        document.getElementById("result").textContent = `清理完成\n删除 Base64 图片：${removedImages} 张\n重写存档：${rewrittenKeys} 个\n删除损坏存档：${removedKeys} 个`;
+      } catch (error) {
+        document.getElementById("result").textContent = "清理未完成：浏览器拒绝访问本地存储。请在普通浏览模式中重新打开此页面。";
+      }
+    })();
+  </script>
+</body>
+</html>
