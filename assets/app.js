@@ -833,7 +833,6 @@
       dom.detailPanel.replaceChildren();
     }
     renderSearchResults();
-    scheduleCityPhotoResolution();
     requestAnimationFrame(() => clampAndPlaceMascot(false));
   }
 
@@ -2998,7 +2997,6 @@
     renderAll();
     setMascotHidden(mascotHidden, false);
     requestAnimationFrame(() => clampAndPlaceMascot(false));
-    if (!damagedStorageRaw) saveDatabase();
     if (loadWarning) setTimeout(() => showToast(loadWarning), 250);
   }
 
