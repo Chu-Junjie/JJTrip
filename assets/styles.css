@@ -3952,7 +3952,7 @@ textarea:disabled {
   }
 
   .search-leading { font-size: 13px; }
-  .search-box input { font-size: 11px; }
+  .search-box input { font-size: 16px; }
 
   .search-results {
     position: fixed;
