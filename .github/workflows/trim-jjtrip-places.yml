@@ -2,8 +2,7 @@ name: Trim JJTrip places
 
 on:
   push:
-    branches: [main]
-    paths: [.github/workflows/trim-jjtrip-places.yml]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -100,6 +99,8 @@ jobs:
 
           app_path = Path("assets/app.js")
           app = app_path.read_text(encoding="utf-8")
+          if "result.meta.version = 9;" not in app:
+              raise SystemExit("Database version 9 not found")
           app = app.replace("result.meta.version = 9;", "result.meta.version = 10;", 1)
 
           loop = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
@@ -150,7 +151,8 @@ jobs:
 
           for city in cities:
               start, end = bounds(html, city)
-              assert len(split_items(html[start + 1:end])) == 18
+              if len(split_items(html[start + 1:end])) != 18:
+                  raise SystemExit(f"{city} was not reduced to 18")
           print(counts)
           Path(".github/workflows/trim-jjtrip-places.yml").unlink()
           PY
