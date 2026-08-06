@@ -2,8 +2,6 @@ name: Apply mascot navigation and card action layout
 
 on:
   push:
-    paths:
-      - .github/workflows/apply-nav-mascot-card-actions.yml
   workflow_dispatch:
 
 permissions:
