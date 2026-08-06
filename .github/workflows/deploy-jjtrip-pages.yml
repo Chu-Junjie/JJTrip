@@ -28,6 +28,26 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Bust browser asset cache
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+          version = os.environ["GITHUB_SHA"][:12]
+          replacements = {
+              './assets/styles.css': f'./assets/styles.css?v={version}',
+              './assets/map-layouts.js': f'./assets/map-layouts.js?v={version}',
+              './assets/app.js': f'./assets/app.js?v={version}',
+          }
+          for old, new in replacements.items():
+              html = html.replace(old, new)
+          path.write_text(html, encoding="utf-8")
+          PY
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
