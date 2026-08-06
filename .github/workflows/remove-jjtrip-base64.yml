@@ -16,6 +16,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Repair cleanup script quoting
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path("scripts/remove_base64.py")
+          text = path.read_text(encoding="utf-8")
+          replacement = '''        helper = """  function isBase64ImageSource(value) {
+            return /^data:image\\//i.test(String(value || "").trim());
+          }
+
+          """
+          '''
+          text, count = re.subn(r'        helper = \(\n.*?        \)\n', replacement, text, count=1, flags=re.DOTALL)
+          if count != 1:
+              raise SystemExit("Could not repair helper string")
+          path.write_text(text, encoding="utf-8")
+          PY
+
       - name: Apply cleanup migration
         run: python scripts/remove_base64.py
 
