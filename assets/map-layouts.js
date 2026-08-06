@@ -1,4 +1,4 @@
-/* JJTrip map bootstrap and route-panel interaction refinements. */
+/* JJTrip map bootstrap and route-detail overlay interactions. */
 (function () {
   "use strict";
 
@@ -11,12 +11,33 @@
     const mapStage = document.getElementById("mapStage");
     if (!drawer || !handle || !detail || !mapStage) return;
 
+    const originalParent = detail.parentNode;
+    const originalNextSibling = detail.nextSibling;
+    let routeStopDetailActive = false;
+    let detailIsPortalled = false;
+
     const backdrop = document.createElement("button");
     backdrop.type = "button";
     backdrop.className = "route-detail-backdrop";
     backdrop.setAttribute("aria-label", "关闭地点详情并返回路线栏");
     backdrop.hidden = true;
     document.body.appendChild(backdrop);
+
+    const restoreDetail = () => {
+      if (!detailIsPortalled) return;
+      if (originalNextSibling && originalNextSibling.parentNode === originalParent) {
+        originalParent.insertBefore(detail, originalNextSibling);
+      } else {
+        originalParent.appendChild(detail);
+      }
+      detailIsPortalled = false;
+    };
+
+    const portalDetail = () => {
+      if (detailIsPortalled) return;
+      document.body.appendChild(detail);
+      detailIsPortalled = true;
+    };
 
     const arrangeDetailContent = () => {
       const gallery = detail.querySelector(":scope > .place-gallery");
@@ -28,13 +49,16 @@
 
     const syncRouteDetailOverlay = () => {
       arrangeDetailContent();
-      const shouldOverlay = detail.classList.contains("open") && !drawer.classList.contains("collapsed");
+      const shouldOverlay = routeStopDetailActive && detail.classList.contains("open") && !drawer.classList.contains("collapsed");
+      if (shouldOverlay) portalDetail();
+      else restoreDetail();
       detail.classList.toggle("route-card-overlay", shouldOverlay);
       document.body.classList.toggle("route-detail-open", shouldOverlay);
       backdrop.hidden = !shouldOverlay;
     };
 
     const closeDetailToRoute = () => {
+      routeStopDetailActive = false;
       detail.querySelector("#closeDetailBtn")?.click();
       requestAnimationFrame(syncRouteDetailOverlay);
     };
@@ -50,6 +74,14 @@
     });
 
     drawer.addEventListener("click", event => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest(".route-node") && !target.closest("button")) {
+        routeStopDetailActive = true;
+      }
+    }, true);
+
+    drawer.addEventListener("click", event => {
       if (drawer.classList.contains("collapsed")) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
@@ -61,19 +93,24 @@
     document.addEventListener("pointerdown", event => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-
+      if (routeStopDetailActive && detail.classList.contains("open")) return;
       if (detail.classList.contains("open")) return;
       if (drawer.classList.contains("collapsed")) return;
       if (!target.closest("#mapStage")) return;
       if (target.closest("#detailPanel, .place-marker, .map-zoom-controls, .edit-toolbar, .add-place-tip, button, input, select, textarea")) return;
-
       handle.click();
     }, true);
 
-    const detailObserver = new MutationObserver(syncRouteDetailOverlay);
+    const detailObserver = new MutationObserver(() => {
+      if (!detail.classList.contains("open")) routeStopDetailActive = false;
+      syncRouteDetailOverlay();
+    });
     detailObserver.observe(detail, { childList: true, attributes: true, attributeFilter: ["class"] });
 
-    const drawerObserver = new MutationObserver(syncRouteDetailOverlay);
+    const drawerObserver = new MutationObserver(() => {
+      if (drawer.classList.contains("collapsed")) routeStopDetailActive = false;
+      syncRouteDetailOverlay();
+    });
     drawerObserver.observe(drawer, { attributes: true, attributeFilter: ["class"] });
 
     syncRouteDetailOverlay();

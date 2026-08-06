@@ -88,14 +88,13 @@
 /* Route-stop details cover the route drawer, then dismiss back to it. */
 .route-detail-backdrop {
   position: fixed;
-  z-index: 2700;
+  z-index: 2600;
   inset: 0;
   width: 100%;
   height: 100%;
   padding: 0;
   border: 0;
-  background: rgba(18, 31, 49, 0.24);
-  backdrop-filter: blur(1.5px);
+  background: rgba(18, 31, 49, 0.16);
   cursor: default;
 }
 
@@ -103,10 +102,19 @@
   display: none;
 }
 
-.detail-panel.open.route-card-overlay {
+body > .detail-panel.open.route-card-overlay {
   position: fixed;
   z-index: 2900;
+  top: 7vh;
+  right: max(18px, calc((100vw - 440px) / 2));
+  bottom: auto;
+  left: max(18px, calc((100vw - 440px) / 2));
+  width: auto;
+  max-width: 440px;
+  max-height: 78vh;
+  border-radius: 24px;
   box-shadow: 0 24px 80px rgba(18, 31, 49, 0.34);
+  transform: none;
 }
 
 @media (max-width: 720px) {
@@ -120,18 +128,19 @@
     margin-top: 25px;
   }
 
-  .detail-panel.open.route-card-overlay {
+  body > .detail-panel.open.route-card-overlay {
     top: auto;
-    right: calc(8px + var(--safe-right));
-    bottom: calc(6px + var(--safe-bottom));
-    left: calc(8px + var(--safe-left));
+    right: calc(10px + var(--safe-right));
+    bottom: calc(82px + var(--safe-bottom));
+    left: calc(10px + var(--safe-left));
     width: auto;
-    max-height: min(78dvh, 700px);
+    max-width: none;
+    max-height: min(62dvh, 560px);
     border-radius: 24px;
-    transform: translateY(0);
+    transform: none;
   }
 
-  .detail-panel.open.route-card-overlay > .place-gallery {
+  body > .detail-panel.open.route-card-overlay > .place-gallery {
     min-height: 170px;
   }
 }
