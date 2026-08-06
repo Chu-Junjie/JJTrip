@@ -2,6 +2,9 @@ name: Apply mascot navigation and card action layout
 
 on:
   push:
+    paths:
+      - .github/workflows/apply-nav-mascot-card-actions.yml
+      - .github/ui-refinement-trigger.txt
   workflow_dispatch:
 
 permissions:
@@ -12,141 +15,113 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply focused UI changes
+      - name: Apply CSS-only UI refinement
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          index_path = Path('index.html')
-          index = index_path.read_text(encoding='utf-8')
-          index, removed = re.subn(
-              r'\n\s*<button class="floating-mascot" id="floatingMascot"[\s\S]*?</button>\s*\n',
-              '\n',
-              index,
-              count=1
-          )
-          if removed != 1 and 'mascot-nav-item' not in index:
-              raise SystemExit('Could not remove the standalone mascot')
-          settings_pattern = r'<button class="bottom-nav-item" type="button" data-nav="settings"><span aria-hidden="true">⚙</span><b>设置</b></button>'
-          settings_replacement = '<button class="bottom-nav-item mascot-nav-item" id="floatingMascot" type="button" data-nav="settings" aria-label="打开旅行搭子设置"><span class="mascot-nav-visual" aria-hidden="true"><img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt=""></span><b>设置</b></button>'
-          index, changed = re.subn(settings_pattern, settings_replacement, index, count=1)
-          if changed != 1 and 'mascot-nav-item' not in index:
-              raise SystemExit('Could not replace the settings navigation icon')
-          index_path.write_text(index, encoding='utf-8')
+          path = Path('assets/styles.css')
+          css = path.read_text(encoding='utf-8')
+          marker = '/* v7.2 settings mascot navigation and compact detail actions. */'
+          if marker not in css:
+              css += r'''
 
-          app_path = Path('assets/app.js')
-          app = app_path.read_text(encoding='utf-8')
-          if 'function mascotUsesBottomNavigation()' not in app:
-              marker = '  function setMascotHidden(hidden, save = true) {\n'
-              if marker not in app:
-                  raise SystemExit('Mascot hidden function was not found')
-              helper = '''  function mascotUsesBottomNavigation() {
-    return Boolean(dom.mascot?.closest(".bottom-nav"));
-  }
+/* v7.2 settings mascot navigation and compact detail actions. */
+.floating-mascot {
+  display: none !important;
+}
 
-'''
-              app = app.replace(marker, helper + marker, 1)
-
-          app = app.replace(
-              '  function setMascotHidden(hidden, save = true) {\n    mascotHidden = Boolean(hidden);',
-              '  function setMascotHidden(hidden, save = true) {\n    if (mascotUsesBottomNavigation()) {\n      mascotHidden = false;\n      dom.mascot.classList.remove("mascot-hidden", "mascot-hidden-left", "mascot-hidden-right");\n      return;\n    }\n    mascotHidden = Boolean(hidden);',
-              1
-          )
-          app = app.replace(
-              '  function clampAndPlaceMascot(save = false) {\n    if (mascotHidden) return;',
-              '  function clampAndPlaceMascot(save = false) {\n    if (mascotUsesBottomNavigation() || mascotHidden) return;',
-              1
-          )
-          app = app.replace(
-              '  function bindMascotPointer() {\n    dom.mascot.addEventListener("pointerdown", event => {',
-              '  function bindMascotPointer() {\n    if (mascotUsesBottomNavigation()) return;\n    dom.mascot.addEventListener("pointerdown", event => {',
-              1
-          )
-
-          detail_pattern = re.compile(
-              r'      \$\{previewMarkup\(place, info\)\}\n'
-              r'      \$\{isEditMode \? editDetails\(place\) : readOnlyDetails\(place\)\}\n'
-              r'      <div class="actions detail-primary-actions">[\s\S]*?\n      </div>`;'
-          )
-          detail_replacement = '''      ${previewMarkup(place, info)}
-      <div class="actions detail-primary-actions detail-action-row">
-        <button class="btn favorite-toggle${place.favorite ? " active" : ""}" id="favoriteToggleBtn" type="button" aria-pressed="${place.favorite}">${place.favorite ? "♥ 已收藏" : "♡ 收藏"}</button>
-        <button class="${inPlan ? "btn-danger" : "btn-primary"}" id="planToggleBtn" type="button">${inPlan ? "移出线路" : "加入线路"}</button>
-      </div>
-      ${isEditMode ? editDetails(place) : readOnlyDetails(place)}`;'''
-          app, action_changed = detail_pattern.subn(detail_replacement, app, count=1)
-          if action_changed != 1 and 'detail-action-row' not in app:
-              raise SystemExit('Could not move the detail action buttons')
-          app_path.write_text(app, encoding='utf-8')
-
-          css_path = Path('assets/styles.css')
-          css = css_path.read_text(encoding='utf-8')
-          if 'v7.2 mascot replaces the settings icon' not in css:
-              css += '''
-
-/* v7.2 mascot replaces the settings icon and card actions sit below the image. */
 .bottom-nav {
   overflow: visible;
 }
 
-.mascot-nav-item {
+.bottom-nav [data-nav="settings"] {
   position: relative;
   overflow: visible;
   isolation: isolate;
 }
 
-.mascot-nav-visual {
+.bottom-nav [data-nav="settings"] > span {
+  visibility: hidden;
+}
+
+.bottom-nav [data-nav="settings"]::before {
   position: absolute;
   z-index: 3;
   top: -43px;
   left: 50%;
-  display: block;
   width: 58px;
   height: 82px;
   transform: translateX(-50%);
+  background: url("./jjtrip-mascot-3d.png") center bottom / contain no-repeat;
+  filter: drop-shadow(0 7px 8px rgba(31, 60, 89, 0.22));
+  content: "";
   pointer-events: none;
 }
 
-.mascot-nav-visual::after {
+.bottom-nav [data-nav="settings"]::after {
   position: absolute;
-  z-index: -1;
-  right: 7px;
-  bottom: 4px;
-  left: 7px;
-  height: 16px;
+  z-index: 2;
+  top: 23px;
+  left: 50%;
+  width: 40px;
+  height: 13px;
+  transform: translateX(-50%);
   border-radius: 50%;
-  background: rgba(31, 60, 89, 0.18);
+  background: rgba(31, 60, 89, 0.16);
   filter: blur(5px);
   content: "";
+  pointer-events: none;
 }
 
-.mascot-nav-visual img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  filter: drop-shadow(0 7px 8px rgba(31, 60, 89, 0.22));
-}
-
-.mascot-nav-item > b {
+.bottom-nav [data-nav="settings"] > b {
   margin-top: 27px;
 }
 
-.mascot-nav-item.active .mascot-nav-visual {
+.bottom-nav [data-nav="settings"].active::before {
   transform: translateX(-50%) translateY(-2px) scale(1.04);
 }
 
-.detail-action-row {
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-panel > * {
+  order: 4;
+}
+
+.detail-panel > .panel-close {
+  position: absolute;
+  z-index: 6;
+  top: 12px;
+  right: 12px;
+  order: 0;
+  float: none;
+}
+
+.detail-panel > .place-heading {
+  order: 1;
+}
+
+.detail-panel > .place-gallery {
+  order: 2;
+}
+
+.detail-panel > .detail-primary-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px;
+  order: 3;
   width: 100%;
+  gap: 8px;
   margin: 2px 0 15px;
 }
 
-.detail-action-row > button {
+.detail-panel > .detail-primary-actions .plan-state {
+  display: none;
+}
+
+.detail-panel > .detail-primary-actions > button {
   width: 100%;
   min-width: 0;
   margin: 0;
@@ -154,25 +129,25 @@ jobs:
 }
 
 @media (max-width: 720px) {
-  .mascot-nav-visual {
+  .bottom-nav [data-nav="settings"]::before {
     top: -39px;
     width: 54px;
     height: 77px;
   }
 
-  .mascot-nav-item > b {
+  .bottom-nav [data-nav="settings"] > b {
     margin-top: 25px;
   }
 }
 '''
-          css_path.write_text(css, encoding='utf-8')
+              path.write_text(css, encoding='utf-8')
           PY
-          node --check assets/app.js
       - name: Commit UI changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html assets/app.js assets/styles.css
+          git add assets/styles.css
           git diff --cached --quiet && exit 0
-          git commit -m "fix: move mascot into settings navigation"
+          git commit -m "fix: place mascot in settings navigation"
+          git pull --rebase
           git push
