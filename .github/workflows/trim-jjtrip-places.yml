@@ -15,153 +15,94 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Keep 18 places per city
+      - name: Reduce seed and saved places
         shell: bash
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
 
           cities = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
 
-          def matching(text, start):
-              depth = 0
-              quote = None
-              escaped = False
-              for i in range(start, len(text)):
-                  c = text[i]
-                  if quote:
-                      if escaped:
-                          escaped = False
-                      elif c == "\\":
-                          escaped = True
-                      elif c == quote:
-                          quote = None
-                      continue
-                  if c in ('"', "'", "`"):
-                      quote = c
-                  elif c == "[":
-                      depth += 1
-                  elif c == "]":
-                      depth -= 1
-                      if depth == 0:
-                          return i
-              raise SystemExit("Unmatched city places array")
-
-          def split_items(body):
-              items = []
-              start = 0
-              p = b = r = 0
-              quote = None
-              escaped = False
-              for i, c in enumerate(body):
-                  if quote:
-                      if escaped:
-                          escaped = False
-                      elif c == "\\":
-                          escaped = True
-                      elif c == quote:
-                          quote = None
-                      continue
-                  if c in ('"', "'", "`"):
-                      quote = c
-                  elif c == "(": p += 1
-                  elif c == ")": p -= 1
-                  elif c == "[": b += 1
-                  elif c == "]": b -= 1
-                  elif c == "{": r += 1
-                  elif c == "}": r -= 1
-                  elif c == "," and p == b == r == 0:
-                      item = body[start:i].strip()
-                      if item: items.append(item)
-                      start = i + 1
-              item = body[start:].strip()
-              if item: items.append(item)
-              return items
-
-          def bounds(html, city):
-              city_start = html.index(f"    {city}:city(")
-              start = html.index(",[\n      poi(", city_start) + 1
-              return start, matching(html, start)
-
-          index_path = Path("index.html")
-          html = index_path.read_text(encoding="utf-8")
-          counts = {}
           for city in cities:
-              start, end = bounds(html, city)
-              items = split_items(html[start + 1:end])
-              counts[city] = len(items)
-              if len(items) < 18:
-                  raise SystemExit(f"{city} has fewer than 18 places")
-              replacement = "[\n      " + ",\n      ".join(items[:18]) + "\n    ]"
-              html = html[:start] + replacement + html[end + 1:]
-          html = html.replace("20260806-performance-2", "20260806-places-18")
-          index_path.write_text(html, encoding="utf-8")
+              pattern = re.compile(
+                  rf'(    {city}:city\(.*?,\[\n)(.*?)(\n    \]\))',
+                  re.DOTALL,
+              )
+              match = pattern.search(html)
+              if not match:
+                  raise SystemExit(f"Could not find {city} seed block")
+              lines = [line for line in match.group(2).splitlines() if line.strip()]
+              place_lines = [line for line in lines if line.lstrip().startswith("poi(")]
+              if len(place_lines) < 18:
+                  raise SystemExit(f"{city} has only {len(place_lines)} places")
+              kept = place_lines[:18]
+              html = html[:match.start()] + match.group(1) + "\n".join(kept) + match.group(3) + html[match.end():]
 
-          app_path = Path("assets/app.js")
-          app = app_path.read_text(encoding="utf-8")
-          if "result.meta.version = 9;" not in app:
-              raise SystemExit("Database version 9 not found")
-          app = app.replace("result.meta.version = 9;", "result.meta.version = 10;", 1)
-
-          loop = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
-              result.cities[cityId] = normaliseCity(cityId, cityData);
-            }
-
-          '''
-          migrated = loop + '''    if (previousDataVersion < 10) {
-              for (const cityId of FIXED_CITY_IDS) {
-                const cityData = result.cities[cityId];
-                if (!cityData) continue;
-                cityData.places = cityData.places.slice(0, 18);
-                const validIds = new Set(cityData.places.map(place => place.id));
-                for (const routePlan of cityData.routePlans) {
-                  routePlan.route = routePlan.route.filter(id => validIds.has(id));
-                  routePlan.segments = Object.fromEntries(Object.entries(routePlan.segments).filter(([key]) => {
-                    const [startId, endId] = key.split("__");
-                    return validIds.has(startId) && validIds.has(endId);
-                  }));
+          migration = '''  <script>
+            (() => {
+              const dataKey = "jjtrip_mvp_v3";
+              const migrationKey = "jjtrip_places_18_v1";
+              try {
+                if (localStorage.getItem(migrationKey) === "1") return;
+                const raw = localStorage.getItem(dataKey);
+                if (raw) {
+                  const data = JSON.parse(raw);
+                  for (const cityId of ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]) {
+                    const city = data.cities?.[cityId];
+                    if (!city) continue;
+                    city.places = Array.isArray(city.places) ? city.places.slice(0, 18) : [];
+                    const validIds = new Set(city.places.map(place => String(place.id)));
+                    if (Array.isArray(city.routePlans)) {
+                      for (const plan of city.routePlans) {
+                        plan.route = Array.isArray(plan.route) ? plan.route.filter(id => validIds.has(String(id))) : [];
+                        if (plan.segments && typeof plan.segments === "object") {
+                          plan.segments = Object.fromEntries(Object.entries(plan.segments).filter(([key]) => {
+                            const [startId, endId] = key.split("__");
+                            return validIds.has(startId) && validIds.has(endId);
+                          }));
+                        }
+                      }
+                    }
+                    city.route = Array.isArray(city.route) ? city.route.filter(id => validIds.has(String(id))) : [];
+                    if (city.segments && typeof city.segments === "object") {
+                      city.segments = Object.fromEntries(Object.entries(city.segments).filter(([key]) => {
+                        const [startId, endId] = key.split("__");
+                        return validIds.has(startId) && validIds.has(endId);
+                      }));
+                    }
+                  }
+                  localStorage.setItem(dataKey, JSON.stringify(data));
                 }
-                const activePlan = cityData.routePlans.find(plan => plan.id === cityData.activeRouteId) || cityData.routePlans[0];
-                cityData.route = activePlan.route;
-                cityData.segments = activePlan.segments;
-              }
-            }
+                localStorage.setItem(migrationKey, "1");
+              } catch (_) {}
+            })();
+          </script>
+          <script src="./assets/app.js?v=20260806-places-18"></script>'''
 
-          '''
-          if loop not in app:
-              raise SystemExit("Database normalisation loop not found")
-          app = app.replace(loop, migrated, 1)
-
-          old_load = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
-              return normaliseDatabase(JSON.parse(raw));
-          '''
-          new_load = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
-              const parsed = JSON.parse(raw);
-              const oldVersion = Number(parsed?.meta?.version) || 0;
-              const database = normaliseDatabase(parsed);
-              if (oldVersion < 10) {
-                try { localStorage.setItem(STORAGE_KEY, serialiseDatabase(database)); } catch (_) {}
-              }
-              return database;
-          '''
-          if old_load not in app:
-              raise SystemExit("Database loading block not found")
-          app = app.replace(old_load, new_load, 1)
-          app_path.write_text(app, encoding="utf-8")
+          old_script = '  <script src="./assets/app.js?v=20260806-performance-2"></script>'
+          if old_script not in html:
+              raise SystemExit("Could not find current app script reference")
+          html = html.replace(old_script, migration, 1)
+          html = html.replace("20260806-performance-2", "20260806-places-18")
+          path.write_text(html, encoding="utf-8")
 
           for city in cities:
-              start, end = bounds(html, city)
-              if len(split_items(html[start + 1:end])) != 18:
-                  raise SystemExit(f"{city} was not reduced to 18")
-          print(counts)
+              pattern = re.compile(rf'    {city}:city\(.*?,\[\n(.*?)\n    \]\)', re.DOTALL)
+              block = pattern.search(html)
+              count = sum(1 for line in block.group(1).splitlines() if line.lstrip().startswith("poi("))
+              if count != 18:
+                  raise SystemExit(f"{city} has {count} places after trimming")
+
           Path(".github/workflows/trim-jjtrip-places.yml").unlink()
           PY
 
-      - name: Validate and commit
+      - name: Commit reduced data
         shell: bash
         run: |
-          node --check assets/app.js
-          grep -q 'result.meta.version = 10' assets/app.js
+          grep -q 'jjtrip_places_18_v1' index.html
           grep -q '20260806-places-18' index.html
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
