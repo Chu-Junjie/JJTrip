@@ -1,6 +1,6 @@
 @import url("./styles-core-v7.css");
 
-/* v7.2 settings mascot navigation and compact detail actions. */
+/* Settings mascot replaces the gear icon. */
 .floating-mascot {
   display: none !important;
 }
@@ -56,56 +56,57 @@
   transform: translateX(-50%) translateY(-2px) scale(1.04);
 }
 
-.detail-panel {
-  display: flex;
-  flex-direction: column;
-}
-
-.detail-panel > * {
-  order: 4;
-}
-
-.detail-panel > .panel-close {
-  position: absolute;
-  z-index: 6;
-  top: 12px;
-  right: 12px;
-  order: 0;
-  float: none;
-}
-
-.detail-panel > .place-heading {
-  order: 1;
-}
-
-.detail-panel > .place-gallery {
-  order: 2;
-}
-
-.detail-panel > .detail-primary-actions {
+/* Keep both detail actions directly below the place photo. */
+.detail-primary-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  order: 3;
   width: 100%;
   gap: 8px;
   margin: 2px 0 15px;
 }
 
-.detail-panel > .detail-primary-actions .plan-state {
+.detail-primary-actions .plan-state {
   display: none;
 }
 
-.detail-panel > .detail-primary-actions > button {
+.detail-primary-actions > button {
   width: 100%;
   min-width: 0;
   margin: 0;
   white-space: nowrap;
 }
 
-/* Route stop cards must appear above the expanded route drawer. */
-.detail-panel.open.route-visible {
+/* Restore and protect the original place image area. */
+.detail-panel > .place-gallery {
+  display: block;
+  min-height: 150px;
+  flex: 0 0 auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Route-stop details cover the route drawer, then dismiss back to it. */
+.route-detail-backdrop {
   position: fixed;
-  z-index: 2800;
+  z-index: 2700;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(18, 31, 49, 0.24);
+  backdrop-filter: blur(1.5px);
+  cursor: default;
+}
+
+.route-detail-backdrop[hidden] {
+  display: none;
+}
+
+.detail-panel.open.route-card-overlay {
+  position: fixed;
+  z-index: 2900;
+  box-shadow: 0 24px 80px rgba(18, 31, 49, 0.34);
 }
 
 @media (max-width: 720px) {
@@ -119,10 +120,18 @@
     margin-top: 25px;
   }
 
-  .detail-panel.open.route-visible:not(.editing) {
-    right: calc(12px + var(--safe-right));
-    bottom: calc(84px + var(--safe-bottom));
-    left: calc(12px + var(--safe-left));
-    max-height: min(62dvh, 560px);
+  .detail-panel.open.route-card-overlay {
+    top: auto;
+    right: calc(8px + var(--safe-right));
+    bottom: calc(6px + var(--safe-bottom));
+    left: calc(8px + var(--safe-left));
+    width: auto;
+    max-height: min(78dvh, 700px);
+    border-radius: 24px;
+    transform: translateY(0);
+  }
+
+  .detail-panel.open.route-card-overlay > .place-gallery {
+    min-height: 170px;
   }
 }
