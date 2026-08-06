@@ -1,4 +1,4 @@
-/* JJTrip map bootstrap and route-detail overlay interactions. */
+/* JJTrip map bootstrap and route-detail overlay interactions. Build 2026-08-06 17:21 SGT. */
 (function () {
   "use strict";
 
