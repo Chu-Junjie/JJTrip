@@ -231,3 +231,155 @@
     }
   };
 })();
+
+/* JJTrip navigation compatibility fixes loaded before app.js. */
+(function () {
+  "use strict";
+
+  const CITY_IDS = {
+    "香港": "hongkong",
+    "新加坡": "singapore",
+    "深圳": "shenzhen",
+    "澳门": "macau",
+    "吉隆坡": "kualalumpur"
+  };
+  let pendingCityId = "";
+
+  document.addEventListener("click", event => {
+    const option = event.target.closest?.(".quick-city-option");
+    if (!option) return;
+    const name = option.querySelector("b")?.textContent?.trim() || "";
+    pendingCityId = CITY_IDS[name] || "";
+  }, true);
+
+  window.save = function () {
+    if (!pendingCityId) return;
+    try {
+      const key = "jjtrip_mvp_v3";
+      const raw = localStorage.getItem(key);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      data.currentCity = pendingCityId;
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (_) {
+      // Switching still completes in memory even when local storage is unavailable.
+    } finally {
+      pendingCityId = "";
+    }
+  };
+
+  function installNavigationFixes() {
+    const bottomNav = document.getElementById("bottomNav");
+    const routeDrawer = document.getElementById("routeDrawer");
+    const detailPanel = document.getElementById("detailPanel");
+    const settings = document.getElementById("settingsBackdrop");
+    const settingsDrawer = document.querySelector(".settings-drawer");
+    const closeSettingsButton = document.getElementById("closeSettingsBtn");
+
+    if (!bottomNav || !routeDrawer || !settings || !settingsDrawer || !closeSettingsButton) {
+      setTimeout(installNavigationFixes, 50);
+      return;
+    }
+
+    const syncRouteDrawer = () => {
+      const activeNav = bottomNav.querySelector("[data-nav].active")?.dataset.nav || "home";
+      const show = activeNav === "plan";
+      routeDrawer.hidden = !show;
+      routeDrawer.classList.toggle("is-hidden", !show);
+      detailPanel?.classList.toggle("route-visible", show);
+    };
+
+    const navObserver = new MutationObserver(syncRouteDrawer);
+    navObserver.observe(bottomNav, { subtree: true, attributes: true, attributeFilter: ["class"] });
+    navObserver.observe(routeDrawer, { attributes: true, attributeFilter: ["class", "hidden"] });
+    document.addEventListener("click", event => {
+      if (event.target.closest?.("[data-nav], .filter-chip, .search-shell, .quick-city-option")) {
+        queueMicrotask(syncRouteDrawer);
+      }
+    });
+    syncRouteDrawer();
+
+    const edgeWidth = 40;
+    const closeThreshold = 74;
+    let tracking = false;
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let latestDx = 0;
+    let horizontal = false;
+    let intentLocked = false;
+
+    settings.style.touchAction = "pan-y";
+
+    const resetDrawer = animate => {
+      settingsDrawer.style.transition = animate ? "transform 0.18s ease" : "";
+      settingsDrawer.style.transform = "translateX(0px)";
+      if (animate) setTimeout(() => {
+        settingsDrawer.style.transition = "";
+        settingsDrawer.style.transform = "";
+      }, 220);
+    };
+
+    const finishSwipe = close => {
+      if (!tracking) return;
+      tracking = false;
+      pointerId = null;
+      if (!close) {
+        resetDrawer(true);
+        return;
+      }
+      const width = settingsDrawer.getBoundingClientRect().width;
+      settingsDrawer.style.transition = "transform 0.18s ease";
+      settingsDrawer.style.transform = `translateX(${Math.max(latestDx, width)}px)`;
+      setTimeout(() => closeSettingsButton.click(), 160);
+    };
+
+    settings.addEventListener("pointerdown", event => {
+      if (!settings.classList.contains("open")) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const drawerLeft = settingsDrawer.getBoundingClientRect().left;
+      if (event.clientX > Math.max(edgeWidth, drawerLeft + edgeWidth)) return;
+      tracking = true;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      latestDx = 0;
+      horizontal = false;
+      intentLocked = false;
+      settingsDrawer.style.transition = "none";
+      try { settings.setPointerCapture?.(pointerId); } catch (_) {}
+    });
+
+    settings.addEventListener("pointermove", event => {
+      if (!tracking || event.pointerId !== pointerId) return;
+      const dx = Math.max(0, event.clientX - startX);
+      const dy = event.clientY - startY;
+      if (!intentLocked) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        intentLocked = true;
+        horizontal = dx > 0 && Math.abs(dx) > Math.abs(dy) * 1.1;
+      }
+      if (!horizontal) {
+        finishSwipe(false);
+        return;
+      }
+      latestDx = dx;
+      event.preventDefault();
+      settingsDrawer.style.transform = `translateX(${dx}px)`;
+    });
+
+    settings.addEventListener("pointerup", event => {
+      if (!tracking || event.pointerId !== pointerId) return;
+      const width = settingsDrawer.getBoundingClientRect().width;
+      const threshold = Math.min(Math.max(closeThreshold, width * 0.18), width * 0.4);
+      finishSwipe(horizontal && latestDx >= threshold);
+    });
+    settings.addEventListener("pointercancel", () => finishSwipe(false));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installNavigationFixes, { once: true });
+  } else {
+    installNavigationFixes();
+  }
+})();
