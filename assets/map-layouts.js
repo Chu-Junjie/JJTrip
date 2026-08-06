@@ -284,14 +284,15 @@
     const syncRouteDrawer = () => {
       const activeNav = bottomNav.querySelector("[data-nav].active")?.dataset.nav || "home";
       const show = activeNav === "plan";
-      routeDrawer.hidden = !show;
-      routeDrawer.classList.toggle("is-hidden", !show);
+      if (routeDrawer.hidden === show) routeDrawer.hidden = !show;
+      if (routeDrawer.classList.contains("is-hidden") === show) {
+        routeDrawer.classList.toggle("is-hidden", !show);
+      }
       detailPanel?.classList.toggle("route-visible", show);
     };
 
     const navObserver = new MutationObserver(syncRouteDrawer);
     navObserver.observe(bottomNav, { subtree: true, attributes: true, attributeFilter: ["class"] });
-    navObserver.observe(routeDrawer, { attributes: true, attributeFilter: ["class", "hidden"] });
     document.addEventListener("click", event => {
       if (event.target.closest?.("[data-nav], .filter-chip, .search-shell, .quick-city-option")) {
         queueMicrotask(syncRouteDrawer);
