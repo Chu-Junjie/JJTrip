@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dcfce7"/><stop offset="1" stop-color="#bbf7d0"/></linearGradient><filter id="s"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-opacity=".18"/></filter></defs>
+<rect width="1200" height="720" rx="56" fill="url(#bg)"/>
+<path d="M0 540 C230 455 360 650 610 548 C820 462 975 510 1200 430 V720 H0Z" fill="#fff" opacity=".42"/>
+<path d="M-30 180 C250 80 390 240 640 130 C850 40 1010 110 1230 55" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-dasharray="30 28" opacity=".55"/>
+<circle cx="220" cy="230" r="126" fill="#fff" opacity=".92" filter="url(#s)"/>
+<text x="220" y="278" text-anchor="middle" font-size="120" font-family="Arial, Apple Color Emoji, Segoe UI Emoji">🏨</text>
+<text x="405" y="265" font-size="64" font-weight="800" fill="#18324d" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">澳门新葡京酒店</text>
+
+<rect x="405" y="390" width="340" height="58" rx="29" fill="#fff" opacity=".78"/>
+<text x="575" y="428" text-anchor="middle" font-size="28" font-weight="700" fill="#047857" font-family="Arial, PingFang SC, Microsoft YaHei, sans-serif">澳门 · 酒店</text>
+<text x="72" y="650" font-size="32" font-weight="700" fill="#24415f" opacity=".72" font-family="Arial, sans-serif">JJTrip PLACE COVER</text>
+<circle cx="1110" cy="92" r="28" fill="#047857" opacity=".88"/><circle cx="1110" cy="92" r="9" fill="#fff"/>
+</svg>
