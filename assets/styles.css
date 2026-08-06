@@ -102,6 +102,12 @@
   white-space: nowrap;
 }
 
+/* Route stop cards must appear above the expanded route drawer. */
+.detail-panel.open.route-visible {
+  position: fixed;
+  z-index: 2800;
+}
+
 @media (max-width: 720px) {
   .bottom-nav [data-nav="settings"]::before {
     top: -39px;
@@ -111,5 +117,12 @@
 
   .bottom-nav [data-nav="settings"] > b {
     margin-top: 25px;
+  }
+
+  .detail-panel.open.route-visible:not(.editing) {
+    right: calc(12px + var(--safe-right));
+    bottom: calc(84px + var(--safe-bottom));
+    left: calc(12px + var(--safe-left));
+    max-height: min(62dvh, 560px);
   }
 }
