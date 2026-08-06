@@ -1,0 +1,160 @@
+name: Optimize JJTrip performance
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/optimize-jjtrip-performance.yml
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Optimize static assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          release = "20260806-performance-1"
+
+          # Merge the core stylesheet and the small override stylesheet so the
+          # browser does not have to discover a second render-blocking request.
+          core_css_path = Path("assets/styles-core-v7.css")
+          styles_path = Path("assets/styles.css")
+          core_css = core_css_path.read_text(encoding="utf-8")
+          overrides = styles_path.read_text(encoding="utf-8")
+          override_lines = overrides.splitlines()
+          if not override_lines or not override_lines[0].lstrip().startswith("@import"):
+              raise SystemExit("Expected styles.css to begin with the core stylesheet import")
+          overrides = "\n".join(override_lines[1:]).lstrip()
+          merged_css = core_css.rstrip() + "\n\n/* JJTrip component overrides. */\n" + overrides + "\n"
+          styles_path.write_text(merged_css, encoding="utf-8")
+          core_css_path.unlink()
+
+          # Stop the page from resolving up to 20 remote photos immediately
+          # after startup. Resolve only the place the visitor actually opens.
+          app_path = Path("assets/app.js")
+          app = app_path.read_text(encoding="utf-8")
+          startup_photo_call = "    scheduleCityPhotoResolution();\n"
+          if app.count(startup_photo_call) != 1:
+              raise SystemExit("Unexpected scheduleCityPhotoResolution call count")
+          app = app.replace(startup_photo_call, "", 1)
+
+          startup_save = "    if (!damagedStorageRaw) saveDatabase();\n"
+          if app.count(startup_save) != 1:
+              raise SystemExit("Unexpected startup saveDatabase call count")
+          app = app.replace(startup_save, "", 1)
+
+          helper = '''  async function resolveSelectedPlacePhoto(place) {
+            if (!place || (place.images?.length && !place.autoCover) || place.photoAutoDisabled) return;
+            const cityId = db.currentCity;
+            const placeId = place.id;
+            const matched = await resolvePlacePhoto(place, cityId);
+            if (!matched) return;
+            saveDatabase();
+            if (db.currentCity === cityId && selectedId === placeId && dom.detailPanel.classList.contains("open")) {
+              renderDetail(place);
+            }
+          }
+
+          '''
+          select_marker = "  function selectPlace(placeId) {\n"
+          if app.count(select_marker) != 1:
+              raise SystemExit("Could not locate selectPlace")
+          app = app.replace(select_marker, helper + select_marker, 1)
+
+          select_block = '''    selectedId = placeId;
+            renderMarkers();
+            renderDetail(place);
+            renderRouteDrawer();
+          '''
+          select_replacement = '''    selectedId = placeId;
+            renderMarkers();
+            renderDetail(place);
+            void resolveSelectedPlacePhoto(place);
+            renderRouteDrawer();
+          '''
+          if app.count(select_block) != 1:
+              raise SystemExit("Could not locate the selectPlace render block")
+          app = app.replace(select_block, select_replacement, 1)
+          app_path.write_text(app, encoding="utf-8")
+
+          # Merge the full map definitions into the bootstrap file so the map
+          # is parsed and painted once instead of loading a second script and
+          # replacing the SVG after the first render.
+          map_core_path = Path("assets/map-layouts-core-v7.js")
+          map_path = Path("assets/map-layouts.js")
+          map_core = map_core_path.read_text(encoding="utf-8")
+          map_loader = map_path.read_text(encoding="utf-8")
+          version_line = '  var MAP_CORE_VERSION = "20260806-nonblocking-loader-2";\n'
+          if map_loader.count(version_line) != 1:
+              raise SystemExit("Could not locate MAP_CORE_VERSION")
+          map_loader = map_loader.replace(version_line, "", 1)
+
+          loader_start = "  function loadMapCoreWithoutBlocking() {\n"
+          loader_end = "  function showStartupError(message) {\n"
+          if loader_start not in map_loader or loader_end not in map_loader:
+              raise SystemExit("Could not locate dynamic map loader")
+          before_loader, remainder = map_loader.split(loader_start, 1)
+          _, after_loader = remainder.split(loader_end, 1)
+          map_loader = before_loader + loader_end + after_loader
+
+          loader_call = "  loadMapCoreWithoutBlocking();\n"
+          if map_loader.count(loader_call) != 1:
+              raise SystemExit("Could not locate dynamic map loader call")
+          map_loader = map_loader.replace(loader_call, "", 1)
+
+          merged_map = map_core.rstrip() + "\n\n/* JJTrip bootstrap and route-detail interactions. */\n" + map_loader.lstrip() + "\n"
+          map_path.write_text(merged_map, encoding="utf-8")
+          map_core_path.unlink()
+
+          # Use one release token for all render-critical files so old Safari
+          # and in-app browser caches cannot mix files from different releases.
+          index_path = Path("index.html")
+          html = index_path.read_text(encoding="utf-8")
+          replacements = {
+              './assets/styles.css': f'./assets/styles.css?v={release}',
+              './assets/map-layouts.js': f'./assets/map-layouts.js?v={release}',
+              './assets/app.js': f'./assets/app.js?v={release}',
+          }
+          for old, new in replacements.items():
+              if html.count(old) != 1:
+                  raise SystemExit(f"Unexpected reference count for {old}")
+              html = html.replace(old, new, 1)
+          index_path.write_text(html, encoding="utf-8")
+
+          # This is a one-time maintenance workflow; remove it from the final
+          # repository so main remains the only source of application logic.
+          Path(".github/workflows/optimize-jjtrip-performance.yml").unlink()
+          PY
+
+      - name: Validate JavaScript and asset references
+        shell: bash
+        run: |
+          node --check assets/app.js
+          node --check assets/map-layouts.js
+          test ! -e assets/styles-core-v7.css
+          test ! -e assets/map-layouts-core-v7.js
+          ! grep -q '@import' assets/styles.css
+          ! grep -q 'scheduleCityPhotoResolution();' assets/app.js
+          ! grep -q 'loadMapCoreWithoutBlocking' assets/map-layouts.js
+          grep -q 'performance-1' index.html
+
+      - name: Commit optimized site
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "perf: streamline JJTrip startup loading"
+          git push origin HEAD:main
