@@ -2,10 +2,8 @@ name: Trim JJTrip places
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/trim-jjtrip-places.yml
+    branches: [main]
+    paths: [.github/workflows/trim-jjtrip-places.yml]
 
 permissions:
   contents: write
@@ -14,123 +12,102 @@ jobs:
   trim:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Reduce each city to 18 places
+      - name: Keep 18 places per city
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          CITY_IDS = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]
-          PLACE_LIMIT = 18
-          RELEASE = "20260806-places-18"
+          cities = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]
 
-          def find_matching(text, start, opening="[", closing="]"):
+          def matching(text, start):
               depth = 0
               quote = None
               escaped = False
-              for index in range(start, len(text)):
-                  char = text[index]
+              for i in range(start, len(text)):
+                  c = text[i]
                   if quote:
                       if escaped:
                           escaped = False
-                      elif char == "\\":
+                      elif c == "\\":
                           escaped = True
-                      elif char == quote:
+                      elif c == quote:
                           quote = None
                       continue
-                  if char in ('"', "'", "`"):
-                      quote = char
-                  elif char == opening:
+                  if c in ('"', "'", "`"):
+                      quote = c
+                  elif c == "[":
                       depth += 1
-                  elif char == closing:
+                  elif c == "]":
                       depth -= 1
                       if depth == 0:
-                          return index
-              raise RuntimeError(f"No matching {closing} found")
+                          return i
+              raise SystemExit("Unmatched city places array")
 
-          def split_top_level_items(body):
+          def split_items(body):
               items = []
               start = 0
-              paren = bracket = brace = 0
+              p = b = r = 0
               quote = None
               escaped = False
-              for index, char in enumerate(body):
+              for i, c in enumerate(body):
                   if quote:
                       if escaped:
                           escaped = False
-                      elif char == "\\":
+                      elif c == "\\":
                           escaped = True
-                      elif char == quote:
+                      elif c == quote:
                           quote = None
                       continue
-                  if char in ('"', "'", "`"):
-                      quote = char
-                  elif char == "(":
-                      paren += 1
-                  elif char == ")":
-                      paren -= 1
-                  elif char == "[":
-                      bracket += 1
-                  elif char == "]":
-                      bracket -= 1
-                  elif char == "{":
-                      brace += 1
-                  elif char == "}":
-                      brace -= 1
-                  elif char == "," and paren == bracket == brace == 0:
-                      item = body[start:index].strip()
-                      if item:
-                          items.append(item)
-                      start = index + 1
-              final = body[start:].strip()
-              if final:
-                  items.append(final)
+                  if c in ('"', "'", "`"):
+                      quote = c
+                  elif c == "(": p += 1
+                  elif c == ")": p -= 1
+                  elif c == "[": b += 1
+                  elif c == "]": b -= 1
+                  elif c == "{": r += 1
+                  elif c == "}": r -= 1
+                  elif c == "," and p == b == r == 0:
+                      item = body[start:i].strip()
+                      if item: items.append(item)
+                      start = i + 1
+              item = body[start:].strip()
+              if item: items.append(item)
               return items
 
-          def city_array_bounds(html, city_id):
-              city_start = html.index(f"    {city_id}:city(")
-              array_hint = html.index(",[\n      poi(", city_start)
-              array_start = array_hint + 1
-              array_end = find_matching(html, array_start)
-              return array_start, array_end
+          def bounds(html, city):
+              city_start = html.index(f"    {city}:city(")
+              start = html.index(",[\n      poi(", city_start) + 1
+              return start, matching(html, start)
 
           index_path = Path("index.html")
           html = index_path.read_text(encoding="utf-8")
-          original_counts = {}
-          for city_id in CITY_IDS:
-              array_start, array_end = city_array_bounds(html, city_id)
-              items = split_top_level_items(html[array_start + 1:array_end])
-              original_counts[city_id] = len(items)
-              if len(items) < PLACE_LIMIT:
-                  raise SystemExit(f"{city_id} only has {len(items)} places")
-              kept = items[:PLACE_LIMIT]
-              replacement = "[\n      " + ",\n      ".join(kept) + "\n    ]"
-              html = html[:array_start] + replacement + html[array_end + 1:]
-
-          html = html.replace("20260806-performance-2", RELEASE)
+          counts = {}
+          for city in cities:
+              start, end = bounds(html, city)
+              items = split_items(html[start + 1:end])
+              counts[city] = len(items)
+              if len(items) < 18:
+                  raise SystemExit(f"{city} has fewer than 18 places")
+              replacement = "[\n      " + ",\n      ".join(items[:18]) + "\n    ]"
+              html = html[:start] + replacement + html[end + 1:]
+          html = html.replace("20260806-performance-2", "20260806-places-18")
           index_path.write_text(html, encoding="utf-8")
 
           app_path = Path("assets/app.js")
           app = app_path.read_text(encoding="utf-8")
-          if app.count("result.meta.version = 9;") != 1:
-              raise SystemExit("Unexpected database version declaration")
           app = app.replace("result.meta.version = 9;", "result.meta.version = 10;", 1)
 
-          city_loop = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
+          loop = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
               result.cities[cityId] = normaliseCity(cityId, cityData);
             }
 
           '''
-          migration = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
-              result.cities[cityId] = normaliseCity(cityId, cityData);
-            }
-
-            if (previousDataVersion < 10) {
+          migrated = loop + '''    if (previousDataVersion < 10) {
               for (const cityId of FIXED_CITY_IDS) {
                 const cityData = result.cities[cityId];
                 if (!cityData) continue;
@@ -150,49 +127,40 @@ jobs:
             }
 
           '''
-          if app.count(city_loop) != 1:
-              raise SystemExit("Could not locate database city normalisation loop")
-          app = app.replace(city_loop, migration, 1)
+          if loop not in app:
+              raise SystemExit("Database normalisation loop not found")
+          app = app.replace(loop, migrated, 1)
 
-          load_block = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
+          old_load = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
               return normaliseDatabase(JSON.parse(raw));
           '''
-          load_replacement = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
+          new_load = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
               const parsed = JSON.parse(raw);
-              const previousDataVersion = Number(parsed?.meta?.version) || 0;
+              const oldVersion = Number(parsed?.meta?.version) || 0;
               const database = normaliseDatabase(parsed);
-              if (previousDataVersion < 10) {
+              if (oldVersion < 10) {
                 try { localStorage.setItem(STORAGE_KEY, serialiseDatabase(database)); } catch (_) {}
               }
               return database;
           '''
-          if app.count(load_block) != 1:
-              raise SystemExit("Could not locate loadDatabase return block")
-          app = app.replace(load_block, load_replacement, 1)
+          if old_load not in app:
+              raise SystemExit("Database loading block not found")
+          app = app.replace(old_load, new_load, 1)
           app_path.write_text(app, encoding="utf-8")
 
-          # Verify all seed city arrays now contain exactly 18 entries.
-          checked_html = index_path.read_text(encoding="utf-8")
-          for city_id in CITY_IDS:
-              start, end = city_array_bounds(checked_html, city_id)
-              count = len(split_top_level_items(checked_html[start + 1:end]))
-              if count != PLACE_LIMIT:
-                  raise SystemExit(f"{city_id} has {count} places after trimming")
-
-          print("Original place counts:", original_counts)
+          for city in cities:
+              start, end = bounds(html, city)
+              assert len(split_items(html[start + 1:end])) == 18
+          print(counts)
           Path(".github/workflows/trim-jjtrip-places.yml").unlink()
           PY
 
-      - name: Validate application
+      - name: Validate and commit
         shell: bash
         run: |
           node --check assets/app.js
           grep -q 'result.meta.version = 10' assets/app.js
           grep -q '20260806-places-18' index.html
-
-      - name: Commit reduced data set
-        shell: bash
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
