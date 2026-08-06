@@ -40,6 +40,7 @@ jobs:
           version = os.environ["GITHUB_SHA"][:12]
           replacements = {
               './assets/styles.css': f'./assets/styles.css?v={version}',
+              './assets/map-layouts-core-v7.js': f'./assets/map-layouts-core-v7.js?v={version}',
               './assets/map-layouts.js': f'./assets/map-layouts.js?v={version}',
               './assets/app.js': f'./assets/app.js?v={version}',
           }
