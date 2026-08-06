@@ -85,7 +85,14 @@
   opacity: 1;
 }
 
-/* Transparent click layer: outside taps return to the expanded route. */
+/* All compact cards must remain fully scrollable in iOS and in-app browsers. */
+.detail-panel.open {
+  overscroll-behavior-y: contain;
+  scroll-padding-bottom: 32px;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
 .route-detail-backdrop {
   position: fixed;
   z-index: 2600;
@@ -115,7 +122,8 @@ body > .detail-panel.open.route-card-overlay {
   height: min(52vh, 520px) !important;
   min-height: 0 !important;
   max-height: min(52vh, 520px) !important;
-  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
   border-radius: 24px !important;
   box-shadow: 0 24px 80px rgba(18, 31, 49, 0.34);
   transform: none !important;
@@ -132,18 +140,24 @@ body > .detail-panel.open.route-card-overlay {
     margin-top: 25px;
   }
 
-  /* Keep the normal map card the same half-screen size before and after the header is collapsed. */
+  /* Normal card stays half-screen and its full content scrolls inside the card. */
   .detail-panel.open:not(.editing):not(.route-card-overlay),
   .detail-panel.open.route-visible:not(.editing):not(.route-card-overlay),
   .app-shell.nav-collapsed .detail-panel.open:not(.editing):not(.route-card-overlay),
   .app-shell.nav-collapsed .detail-panel.open.route-visible:not(.editing):not(.route-card-overlay) {
     top: auto !important;
     box-sizing: border-box !important;
-    height: auto !important;
+    height: 50vh !important;
+    height: 50dvh !important;
     min-height: 0 !important;
     max-height: 50vh !important;
     max-height: 50dvh !important;
-    overflow-y: auto !important;
+    padding-bottom: calc(28px + var(--safe-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   body > .detail-panel.open.route-card-overlay {
@@ -155,12 +169,16 @@ body > .detail-panel.open.route-card-overlay {
     width: auto !important;
     max-width: none !important;
     height: 50vh !important;
-    max-height: 50vh !important;
     height: 50dvh !important;
-    max-height: 50dvh !important;
     min-height: 0 !important;
-    padding: 16px !important;
-    overflow-y: auto !important;
+    max-height: 50vh !important;
+    max-height: 50dvh !important;
+    padding: 16px 16px calc(28px + var(--safe-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-x pan-y !important;
+    -webkit-overflow-scrolling: touch;
     border-radius: 22px !important;
     transform: none !important;
   }
