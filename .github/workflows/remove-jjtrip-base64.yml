@@ -1,8 +1,8 @@
 name: Remove JJTrip Base64 images
-# trigger: 20260806-2
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -16,223 +16,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Remove Base64 image storage and upload support
-        shell: bash
-        run: |
-          python - <<'PY'
-          import re
-          from pathlib import Path
+      - name: Apply cleanup migration
+        run: python scripts/remove_base64.py
 
-          app_path = Path("assets/app.js")
-          app = app_path.read_text(encoding="utf-8")
-
-          app = app.replace('  const MAX_PLACE_IMAGE_CHARACTERS = 3200000;\n', '')
-          app = app.replace('  const MAX_SOURCE_IMAGE_BYTES = 15 * 1024 * 1024;\n', '')
-
-          marker = '  function normalisePlace(cityId, input, placeIndex) {\n'
-          helper = '''  function isBase64ImageSource(value) {
-            return /^data:image\\//i.test(String(value || "").trim());
-          }
-
-          '''
-          if marker not in app or 'function isBase64ImageSource' in app:
-              raise SystemExit('Could not add Base64 source helper')
-          app = app.replace(marker, helper + marker, 1)
-
-          old_images = '''    const legacyImage = String(place.image || "").trim();
-            const seedPlace = SEED?.cities?.[cityId]?.places?.find(item => String(item?.id) === place.id);
-            const seedImages = Array.isArray(seedPlace?.images) ? seedPlace.images : [];
-            place.images = Array.isArray(place.images)
-              ? Array.from(new Set(place.images.map(image => String(image || "").trim()).filter(Boolean)))
-              : legacyImage ? [legacyImage] : [];
-          '''
-          new_images = '''    const legacyImage = String(place.image || "").trim();
-            const safeLegacyImage = isBase64ImageSource(legacyImage) ? "" : legacyImage;
-            const seedPlace = SEED?.cities?.[cityId]?.places?.find(item => String(item?.id) === place.id);
-            const seedImages = Array.isArray(seedPlace?.images) ? seedPlace.images : [];
-            place.images = Array.isArray(place.images)
-              ? Array.from(new Set(place.images
-                  .map(image => String(image || "").trim())
-                  .filter(image => image && !isBase64ImageSource(image))))
-              : safeLegacyImage ? [safeLegacyImage] : [];
-          '''
-          if old_images not in app:
-              raise SystemExit('Could not locate place image normalization')
-          app = app.replace(old_images, new_images, 1)
-
-          old_replacer = '''  function databaseReplacer(key, value) {
-            if (key === "image" && typeof value === "string" && value.startsWith("data:image/") && Array.isArray(this.images) && this.images[0] === value) {
-              return undefined;
-            }
-            return value;
-          }
-          '''
-          new_replacer = '''  function databaseReplacer(key, value) {
-            if (typeof value === "string" && isBase64ImageSource(value)) return undefined;
-            return value;
-          }
-          '''
-          if old_replacer not in app:
-              raise SystemExit('Could not locate database replacer')
-          app = app.replace(old_replacer, new_replacer, 1)
-
-          app = app.replace(
-              '${image.startsWith("data:image/") ? "本地上传照片" : escapeHtml(image)}',
-              '${escapeHtml(image)}',
-          )
-
-          old_upload_ui = '''        <div class="field"><label for="imageUpload">上传本地照片（可多选）</label><input id="imageUpload" type="file" accept="image/*" multiple><p class="field-help">图片会压缩后保存在本机；单张原图不超过 15 MB。</p></div>
-          '''
-          new_upload_ui = '''        <p class="field-help">为避免大型 Base64 图片拖慢加载，已停用本地照片上传；请使用图片网址或自动实景图。</p>
-          '''
-          if old_upload_ui not in app:
-              raise SystemExit('Could not locate local upload UI')
-          app = app.replace(old_upload_ui, new_upload_ui, 1)
-          app = app.replace('可上传本地照片或添加图片网址', '可添加图片网址或匹配自动实景图')
-
-          app = app.replace(
-              'showToast("图片网址无效，请使用 http、https、data:image 或相对路径");',
-              'showToast("图片网址无效，请使用 http、https 或相对路径");',
-          )
-
-          old_supported = '''  function isSupportedImageSource(source) {
-            if (/^data:image\\//i.test(source)) return true;
-            try {
-              const url = new URL(source, location.href);
-              return ["http:", "https:", "file:"].includes(url.protocol);
-            } catch (_) {
-              return false;
-            }
-          }
-          '''
-          new_supported = '''  function isSupportedImageSource(source) {
-            if (isBase64ImageSource(source)) return false;
-            try {
-              const url = new URL(source, location.href);
-              return ["http:", "https:", "file:"].includes(url.protocol);
-            } catch (_) {
-              return false;
-            }
-          }
-          '''
-          if old_supported not in app:
-              raise SystemExit('Could not locate supported image source check')
-          app = app.replace(old_supported, new_supported, 1)
-
-          normalised_line = '    const normalisedImages = Array.from(new Set(nextImages.map(image => String(image || "").trim()).filter(Boolean)));\n'
-          replacement = '''    if (nextImages.some(isBase64ImageSource)) {
-              showToast("不再支持 Base64 图片，请改用图片网址");
-              return false;
-            }
-            const normalisedImages = Array.from(new Set(nextImages.map(image => String(image || "").trim()).filter(Boolean)));
-          '''
-          if normalised_line not in app:
-              raise SystemExit('Could not locate image commit normalization')
-          app = app.replace(normalised_line, replacement, 1)
-
-          app = re.sub(
-              r'\n    if \(normalisedImages\.reduce\(\(total, image\) => total \+ image\.length, 0\) > MAX_PLACE_IMAGE_CHARACTERS\) \{.*?\n    \}',
-              '',
-              app,
-              count=1,
-              flags=re.DOTALL,
-          )
-
-          upload_pattern = re.compile(
-              r'\n    dom\.detailPanel\.querySelector\("#imageUpload"\)\.addEventListener\("change", async event => \{.*?\n    \}\);\n    dom\.detailPanel\.querySelector\("#deletePlaceBtn"\)',
-              re.DOTALL,
-          )
-          app, upload_count = upload_pattern.subn(
-              '\n    dom.detailPanel.querySelector("#deletePlaceBtn")',
-              app,
-              count=1,
-          )
-          if upload_count != 1:
-              raise SystemExit('Could not remove local upload event handler')
-
-          compress_pattern = re.compile(
-              r'\n  function compressImage\(file\) \{.*?\n  \}\n\n  function deletePlace',
-              re.DOTALL,
-          )
-          app, compress_count = compress_pattern.subn('\n  function deletePlace', app, count=1)
-          if compress_count != 1:
-              raise SystemExit('Could not remove Base64 image compression function')
-
-          app_path.write_text(app, encoding="utf-8")
-
-          index_path = Path("index.html")
-          html = index_path.read_text(encoding="utf-8")
-          migration_pattern = re.compile(
-              r'  <script>\n  \(\(\) => \{\n    const dataKey = "jjtrip_mvp_v3";.*?</script>\n<script src="\./assets/app\.js\?v=20260806-places-18"></script>',
-              re.DOTALL,
-          )
-          migration = '''  <script>
-          (() => {
-            const dataKey = "jjtrip_mvp_v3";
-            const recoveryKey = "jjtrip_mvp_v3_recovery";
-            const migrationKey = "jjtrip_remove_base64_v1";
-            const cityIds = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"];
-            const clean = value => {
-              if (typeof value === "string" && /^data:image\\//i.test(value.trim())) return undefined;
-              if (Array.isArray(value)) return value.map(clean).filter(item => item !== undefined);
-              if (value && typeof value === "object") {
-                const result = {};
-                for (const [key, item] of Object.entries(value)) {
-                  const cleaned = clean(item);
-                  if (cleaned !== undefined) result[key] = cleaned;
-                }
-                return result;
-              }
-              return value;
-            };
-            try {
-              if (localStorage.getItem(migrationKey) !== "1") {
-                for (const key of [dataKey, recoveryKey]) {
-                  const raw = localStorage.getItem(key);
-                  if (!raw) continue;
-                  try {
-                    const data = clean(JSON.parse(raw));
-                    for (const cityId of cityIds) {
-                      const city = data?.cities?.[cityId];
-                      if (!city) continue;
-                      city.places = Array.isArray(city.places) ? city.places.slice(0, 18) : [];
-                    }
-                    localStorage.setItem(key, JSON.stringify(data));
-                  } catch (_) {
-                    localStorage.removeItem(key);
-                  }
-                }
-                localStorage.setItem(migrationKey, "1");
-              }
-            } catch (_) {}
-          })();
-        </script>
-        <script src="./assets/app.js?v=20260806-no-base64-1"></script>'''
-          html, migration_count = migration_pattern.subn(migration, html, count=1)
-          if migration_count != 1:
-              raise SystemExit('Could not replace existing localStorage migration')
-          html = html.replace('20260806-places-18', '20260806-no-base64-1')
-          index_path.write_text(html, encoding="utf-8")
-
-          for backup in (Path('assets/app.js.bak'), Path('assets/app.js.pre7')):
-              if backup.exists():
-                  backup.unlink()
-
-          Path('.github/workflows/remove-jjtrip-base64.yml').unlink()
-          PY
-
-      - name: Validate and commit cleanup
-        shell: bash
+      - name: Validate optimized application
         run: |
           node --check assets/app.js
           ! grep -q 'readAsDataURL' assets/app.js
           ! grep -q 'canvas.toDataURL' assets/app.js
           ! grep -q 'id="imageUpload"' assets/app.js
-          ! grep -q 'MAX_SOURCE_IMAGE_BYTES' assets/app.js
           grep -q 'jjtrip_remove_base64_v1' index.html
           grep -q '20260806-no-base64-1' index.html
           test ! -e assets/app.js.bak
           test ! -e assets/app.js.pre7
+          test ! -e scripts/remove_base64.py
+          test ! -e .github/workflows/remove-jjtrip-base64.yml
+
+      - name: Commit cleaned application
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
