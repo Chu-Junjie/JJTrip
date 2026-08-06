@@ -1,0 +1,2229 @@
+{
+  "meta": {
+    "app": "JJTrip",
+    "version": 9,
+    "updated": "2026-08-06"
+  },
+  "currentCity": "hongkong",
+  "settings": {},
+  "versions": [],
+  "cities": {
+    "hongkong": {
+      "name": "香港",
+      "center": [
+        22.294,
+        114.163
+      ],
+      "zoom": 13,
+      "summary": "港岛街区、维港、西九龙、老香港美食与拍照机位地点库。",
+      "coord": "gcj02",
+      "places": [
+        {
+          "id": "hk_peak",
+          "name": "太平山顶",
+          "type": "景点",
+          "lat": 22.277,
+          "lng": 114.1436,
+          "note": "俯瞰维港与港岛天际线的经典地点。",
+          "hours": "开放情况需复核",
+          "address": "山顶道",
+          "photoTip": "傍晚至蓝调时刻适合城市夜景。",
+          "images": [
+            "./assets/place-covers/hk_peak.svg"
+          ],
+          "image": "./assets/place-covers/hk_peak.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "太平山顶",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_peaktram",
+          "name": "山顶缆车中环总站",
+          "type": "交通",
+          "lat": 22.2777,
+          "lng": 114.1591,
+          "note": "前往太平山的经典交通节点。",
+          "hours": "班次与票价需复核",
+          "address": "花园道33号",
+          "photoTip": "建筑与缆车同框。",
+          "images": [
+            "./assets/place-covers/hk_peaktram.svg"
+          ],
+          "image": "./assets/place-covers/hk_peaktram.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "山顶缆车中环总站",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false,
+          "originalType": "交通站点"
+        },
+        {
+          "id": "hk_taikwun",
+          "name": "大馆",
+          "type": "景点",
+          "lat": 22.2814,
+          "lng": 114.1542,
+          "note": "历史建筑群、展览与中环街景。",
+          "hours": "开放时间需复核",
+          "address": "荷李活道10号",
+          "photoTip": "监狱操场、连廊和旧警署立面。",
+          "images": [
+            "./assets/place-covers/hk_taikwun.svg"
+          ],
+          "image": "./assets/place-covers/hk_taikwun.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "大馆",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_pmq",
+          "name": "PMQ元创方",
+          "type": "景点",
+          "lat": 22.283,
+          "lng": 114.1512,
+          "note": "设计店铺、展览与旧宿舍建筑。",
+          "hours": "开放时间需复核",
+          "address": "鸭巴甸街35号",
+          "photoTip": "中庭楼梯和建筑对称构图。",
+          "images": [
+            "./assets/place-covers/hk_pmq.svg"
+          ],
+          "image": "./assets/place-covers/hk_pmq.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "PMQ元创方",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_centralmarket",
+          "name": "中环街市",
+          "type": "景点",
+          "lat": 22.2847,
+          "lng": 114.1558,
+          "note": "室内历史建筑、休息和餐饮候选。",
+          "hours": "10:00–22:00（复核）",
+          "address": "皇后大道中93号",
+          "photoTip": "扶梯、中庭和霓虹装置。",
+          "images": [
+            "./assets/place-covers/hk_centralmarket.svg"
+          ],
+          "image": "./assets/place-covers/hk_centralmarket.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "中环街市",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_graham",
+          "name": "嘉咸街壁画",
+          "type": "拍照机位",
+          "lat": 22.2825,
+          "lng": 114.1518,
+          "note": "中环高密度街区中的热门壁画机位。",
+          "hours": "全天",
+          "address": "荷李活道与嘉咸街一带",
+          "photoTip": "建议早到，避开车辆和排队人群。",
+          "images": [
+            "./assets/place-covers/hk_graham.svg"
+          ],
+          "image": "./assets/place-covers/hk_graham.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "嘉咸街壁画",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_lanfong",
+          "name": "兰芳园（中环）",
+          "type": "餐厅",
+          "lat": 22.2827,
+          "lng": 114.153,
+          "note": "港式奶茶、猪扒包和茶餐厅体验候选。",
+          "hours": "营业时间需复核",
+          "address": "结志街2号",
+          "photoTip": "店面与巷道可拍老香港氛围。",
+          "images": [
+            "./assets/place-covers/hk_lanfong.svg"
+          ],
+          "image": "./assets/place-covers/hk_lanfong.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "兰芳园（中环）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_saiyingpun",
+          "name": "西营盘艺里坊",
+          "type": "拍照机位",
+          "lat": 22.2863,
+          "lng": 114.1422,
+          "note": "壁画、斜坡街道与旧区街景。",
+          "hours": "全天",
+          "address": "西营盘一带",
+          "photoTip": "利用斜坡和楼宇压缩感构图。",
+          "images": [
+            "./assets/place-covers/hk_saiyingpun.svg"
+          ],
+          "image": "./assets/place-covers/hk_saiyingpun.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "西营盘艺里坊",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_kennedy",
+          "name": "坚尼地城篮球场机位",
+          "type": "拍照机位",
+          "lat": 22.2815,
+          "lng": 114.1283,
+          "note": "海景、叮叮车和城市纵深热门机位。",
+          "hours": "全天",
+          "address": "科士街临时游乐场附近",
+          "photoTip": "长焦压缩道路与海面；注意球场使用者。",
+          "images": [
+            "./assets/place-covers/hk_kennedy.svg"
+          ],
+          "image": "./assets/place-covers/hk_kennedy.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "坚尼地城篮球场机位",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_starferry",
+          "name": "中环天星码头",
+          "type": "交通",
+          "lat": 22.2877,
+          "lng": 114.1591,
+          "note": "乘天星小轮横渡维港。",
+          "hours": "班次需复核",
+          "address": "民光街",
+          "photoTip": "码头长廊可拍维港和摩天轮。",
+          "images": [
+            "./assets/place-covers/hk_starferry.svg"
+          ],
+          "image": "./assets/place-covers/hk_starferry.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "中环天星码头",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false,
+          "originalType": "交通站点"
+        },
+        {
+          "id": "hk_clocktower",
+          "name": "尖沙咀钟楼",
+          "type": "拍照机位",
+          "lat": 22.2934,
+          "lng": 114.1695,
+          "note": "钟楼与维港的经典地标机位。",
+          "hours": "全天",
+          "address": "梳士巴利道",
+          "photoTip": "低机位拍钟楼，转身拍港岛天际线。",
+          "images": [
+            "./assets/place-covers/hk_clocktower.svg"
+          ],
+          "image": "./assets/place-covers/hk_clocktower.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "尖沙咀钟楼",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_aos",
+          "name": "星光大道",
+          "type": "景点",
+          "lat": 22.293,
+          "lng": 114.1743,
+          "note": "维港海滨步行与香港电影主题景点。",
+          "hours": "全天",
+          "address": "尖沙咀海滨",
+          "photoTip": "日落、蓝调和每晚灯光秀前后适合拍摄。",
+          "images": [
+            "./assets/place-covers/hk_aos.svg"
+          ],
+          "image": "./assets/place-covers/hk_aos.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "星光大道",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_k11",
+          "name": "K11 MUSEA海旁",
+          "type": "拍照机位",
+          "lat": 22.2931,
+          "lng": 114.1749,
+          "note": "现代建筑、海滨与夜景拍摄区域。",
+          "hours": "商场时间需复核",
+          "address": "梳士巴利道18号",
+          "photoTip": "金色外立面、旋转楼梯和海旁夜景。",
+          "images": [
+            "./assets/place-covers/hk_k11.svg"
+          ],
+          "image": "./assets/place-covers/hk_k11.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "K11 MUSEA海旁",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_mplus",
+          "name": "M+",
+          "type": "博物馆",
+          "lat": 22.301,
+          "lng": 114.159,
+          "note": "西九龙文化区视觉文化博物馆。",
+          "hours": "开放与休馆日需复核",
+          "address": "博物馆道38号",
+          "photoTip": "平台可拍港岛天际线与日落。",
+          "images": [
+            "./assets/place-covers/hk_mplus.svg"
+          ],
+          "image": "./assets/place-covers/hk_mplus.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "M+",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_artpark",
+          "name": "西九艺术公园",
+          "type": "公园",
+          "lat": 22.3005,
+          "lng": 114.1567,
+          "note": "草地、海滨和日落休闲地点。",
+          "hours": "全天",
+          "address": "西九龙文化区",
+          "photoTip": "草地前景配合维港落日。",
+          "images": [
+            "./assets/place-covers/hk_artpark.svg"
+          ],
+          "image": "./assets/place-covers/hk_artpark.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "西九艺术公园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_australia",
+          "name": "澳洲牛奶公司",
+          "type": "餐厅",
+          "lat": 22.3047,
+          "lng": 114.1712,
+          "note": "炒蛋多士、炖奶等港式快节奏餐厅候选。",
+          "hours": "营业时间及休息日需复核",
+          "address": "佐敦白加士街47号",
+          "photoTip": "更适合记录用餐，不建议影响店内通行。",
+          "images": [
+            "./assets/place-covers/hk_australia.svg"
+          ],
+          "image": "./assets/place-covers/hk_australia.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "澳洲牛奶公司",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_templestreet",
+          "name": "庙街夜市",
+          "type": "小吃",
+          "lat": 22.3067,
+          "lng": 114.1697,
+          "note": "夜市、小吃、街头招牌与老香港氛围。",
+          "hours": "傍晚后较活跃",
+          "address": "油麻地庙街",
+          "photoTip": "雨后霓虹、街牌和摊档纵深。",
+          "images": [
+            "./assets/place-covers/hk_templestreet.svg"
+          ],
+          "image": "./assets/place-covers/hk_templestreet.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "庙街夜市",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_hopyik",
+          "name": "合益泰小食",
+          "type": "小吃",
+          "lat": 22.3305,
+          "lng": 114.1607,
+          "note": "深水埗肠粉小吃候选。",
+          "hours": "营业时间需复核",
+          "address": "桂林街121号",
+          "photoTip": "店面空间紧凑，以用餐为主。",
+          "images": [
+            "./assets/place-covers/hk_hopyik.svg"
+          ],
+          "image": "./assets/place-covers/hk_hopyik.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "合益泰小食",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_westkowloonstation",
+          "name": "香港西九龙站",
+          "type": "高铁站",
+          "lat": 22.3049,
+          "lng": 114.1615,
+          "note": "连接香港与内地多座城市的高铁枢纽。",
+          "hours": "车次与开放时间需复核",
+          "address": "柯士甸道西3号",
+          "photoTip": "可拍流线型屋顶、玻璃幕墙和城市天际线。",
+          "images": [
+            "./assets/place-covers/hk_westkowloonstation.svg"
+          ],
+          "image": "./assets/place-covers/hk_westkowloonstation.svg",
+          "emoji": "🚄",
+          "tags": [],
+          "photoQuery": "Hong Kong West Kowloon railway station",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "hk_peninsula",
+          "name": "香港半岛酒店",
+          "type": "酒店",
+          "lat": 22.2951,
+          "lng": 114.1718,
+          "note": "尖沙咀经典历史酒店与维港地标。",
+          "hours": "公共区域开放情况需复核",
+          "address": "梳士巴利道",
+          "photoTip": "从半岛酒店外立面与钟楼方向拍摄经典城市构图。",
+          "images": [
+            "./assets/place-covers/hk_peninsula.svg"
+          ],
+          "image": "./assets/place-covers/hk_peninsula.svg",
+          "emoji": "🏨",
+          "tags": [],
+          "photoQuery": "The Peninsula Hong Kong",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        }
+      ],
+      "routePlans": [
+        {
+          "id": "route_1",
+          "name": "线路 1",
+          "route": [],
+          "segments": {}
+        }
+      ],
+      "activeRouteId": "route_1"
+    },
+    "singapore": {
+      "name": "新加坡",
+      "center": [
+        1.2926,
+        103.8535
+      ],
+      "zoom": 13,
+      "summary": "滨海湾、多元文化街区、小贩中心和城市建筑机位地点库。",
+      "coord": "wgs84",
+      "places": [
+        {
+          "id": "sg_merlion",
+          "name": "鱼尾狮公园",
+          "type": "景点",
+          "lat": 1.2868,
+          "lng": 103.8545,
+          "note": "新加坡地标与滨海湾经典视角。",
+          "hours": "全天",
+          "address": "One Fullerton",
+          "photoTip": "广角拍鱼尾狮与金沙；清晨人少。",
+          "images": [
+            "./assets/place-covers/sg_merlion.svg"
+          ],
+          "image": "./assets/place-covers/sg_merlion.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "鱼尾狮公园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_esplanade",
+          "name": "滨海艺术中心桥位",
+          "type": "拍照机位",
+          "lat": 1.288,
+          "lng": 103.854,
+          "note": "隔水拍金沙、鱼尾狮和滨海湾天际线。",
+          "hours": "全天",
+          "address": "Esplanade Bridge",
+          "photoTip": "蓝调时刻适合长曝光。",
+          "images": [
+            "./assets/place-covers/sg_esplanade.svg"
+          ],
+          "image": "./assets/place-covers/sg_esplanade.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "滨海艺术中心桥位",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_mbs",
+          "name": "金沙活动广场",
+          "type": "拍照机位",
+          "lat": 1.2838,
+          "lng": 103.8591,
+          "note": "滨海湾步道与金融区倒影视角。",
+          "hours": "全天",
+          "address": "Bayfront Avenue",
+          "photoTip": "水边拍金融区，晚上可结合灯光秀。",
+          "images": [
+            "./assets/place-covers/sg_mbs.svg"
+          ],
+          "image": "./assets/place-covers/sg_mbs.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "金沙活动广场",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_gardens",
+          "name": "滨海湾花园",
+          "type": "景点",
+          "lat": 1.2816,
+          "lng": 103.8636,
+          "note": "花穹、云雾林和户外花园。",
+          "hours": "开放及票务需复核",
+          "address": "18 Marina Gardens Drive",
+          "photoTip": "白天拍建筑，晚上拍超级树灯光。",
+          "images": [
+            "./assets/place-covers/sg_gardens.svg"
+          ],
+          "image": "./assets/place-covers/sg_gardens.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "滨海湾花园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_supertree",
+          "name": "超级树丛林",
+          "type": "拍照机位",
+          "lat": 1.2819,
+          "lng": 103.8636,
+          "note": "滨海湾花园夜间代表性景观。",
+          "hours": "灯光秀时间需复核",
+          "address": "Supertree Grove",
+          "photoTip": "躺拍或使用超广角仰拍树冠。",
+          "images": [
+            "./assets/place-covers/sg_supertree.svg"
+          ],
+          "image": "./assets/place-covers/sg_supertree.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "超级树丛林",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false,
+          "originalType": "夜景"
+        },
+        {
+          "id": "sg_fortcanning",
+          "name": "福康宁树洞",
+          "type": "拍照机位",
+          "lat": 1.2945,
+          "lng": 103.8464,
+          "note": "螺旋楼梯与树冠圆形构图热门机位。",
+          "hours": "公园开放时间需复核",
+          "address": "Fort Canning Park",
+          "photoTip": "早到避开排队；从底部向上仰拍。",
+          "images": [
+            "./assets/place-covers/sg_fortcanning.svg"
+          ],
+          "image": "./assets/place-covers/sg_fortcanning.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "福康宁树洞",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_oldhill",
+          "name": "旧禧街警察局",
+          "type": "拍照机位",
+          "lat": 1.2907,
+          "lng": 103.8483,
+          "note": "彩色百叶窗建筑地标。",
+          "hours": "外观全天",
+          "address": "140 Hill Street",
+          "photoTip": "对街广角拍完整立面，注意交通。",
+          "images": [
+            "./assets/place-covers/sg_oldhill.svg"
+          ],
+          "image": "./assets/place-covers/sg_oldhill.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "旧禧街警察局",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_gallery",
+          "name": "新加坡国家美术馆",
+          "type": "博物馆",
+          "lat": 1.2903,
+          "lng": 103.8519,
+          "note": "东南亚艺术收藏与历史建筑。",
+          "hours": "开放时间需复核",
+          "address": "1 St Andrew's Road",
+          "photoTip": "中庭、楼梯和屋顶视角。",
+          "images": [
+            "./assets/place-covers/sg_gallery.svg"
+          ],
+          "image": "./assets/place-covers/sg_gallery.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "新加坡国家美术馆",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_buddha",
+          "name": "佛牙寺龙华院",
+          "type": "景点",
+          "lat": 1.2815,
+          "lng": 103.8443,
+          "note": "牛车水地标寺院。",
+          "hours": "开放时间需复核",
+          "address": "288 South Bridge Road",
+          "photoTip": "对街拍红色建筑立面。",
+          "images": [
+            "./assets/place-covers/sg_buddha.svg"
+          ],
+          "image": "./assets/place-covers/sg_buddha.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "佛牙寺龙华院",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_maxwell",
+          "name": "麦士威熟食中心",
+          "type": "小吃",
+          "lat": 1.2804,
+          "lng": 103.8441,
+          "note": "海南鸡饭、粥品和本地小贩美食集中地。",
+          "hours": "摊位时间不同",
+          "address": "1 Kadayanallur Street",
+          "photoTip": "以用餐记录为主。",
+          "images": [
+            "./assets/place-covers/sg_maxwell.svg"
+          ],
+          "image": "./assets/place-covers/sg_maxwell.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "麦士威熟食中心",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_yakun",
+          "name": "亚坤咖椰吐司（远东广场）",
+          "type": "餐厅",
+          "lat": 1.2837,
+          "lng": 103.8485,
+          "note": "咖椰吐司、半熟蛋和咖啡早餐候选。",
+          "hours": "营业时间需复核",
+          "address": "18 China Street",
+          "photoTip": "老店氛围，避免高峰期久占座位。",
+          "images": [
+            "./assets/place-covers/sg_yakun.svg"
+          ],
+          "image": "./assets/place-covers/sg_yakun.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "亚坤咖椰吐司（远东广场）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_songfa",
+          "name": "松发肉骨茶（克拉码头）",
+          "type": "餐厅",
+          "lat": 1.2894,
+          "lng": 103.8472,
+          "note": "胡椒汤肉骨茶候选。",
+          "hours": "营业时间需复核",
+          "address": "11 New Bridge Road",
+          "photoTip": "用餐为主。",
+          "images": [
+            "./assets/place-covers/sg_songfa.svg"
+          ],
+          "image": "./assets/place-covers/sg_songfa.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "松发肉骨茶（克拉码头）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_sultan",
+          "name": "苏丹回教堂",
+          "type": "景点",
+          "lat": 1.3023,
+          "lng": 103.859,
+          "note": "甘榜格南地标建筑。",
+          "hours": "参观时间与礼仪需复核",
+          "address": "3 Muscat Street",
+          "photoTip": "从Bussorah Street正中构图金色圆顶。",
+          "images": [
+            "./assets/place-covers/sg_sultan.svg"
+          ],
+          "image": "./assets/place-covers/sg_sultan.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "苏丹回教堂",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_haji",
+          "name": "哈芝巷",
+          "type": "拍照机位",
+          "lat": 1.3007,
+          "lng": 103.8598,
+          "note": "彩色店屋、壁画与小店街区。",
+          "hours": "店铺时间不同",
+          "address": "Haji Lane",
+          "photoTip": "上午较空；避免挡住商户入口。",
+          "images": [
+            "./assets/place-covers/sg_haji.svg"
+          ],
+          "image": "./assets/place-covers/sg_haji.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "哈芝巷",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_tenteng",
+          "name": "陈东龄故居",
+          "type": "拍照机位",
+          "lat": 1.3065,
+          "lng": 103.849,
+          "note": "小印度彩色中式别墅。",
+          "hours": "外观全天",
+          "address": "37 Kerbau Road",
+          "photoTip": "从街对面拍完整彩色立面。",
+          "images": [
+            "./assets/place-covers/sg_tenteng.svg"
+          ],
+          "image": "./assets/place-covers/sg_tenteng.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "陈东龄故居",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_tekka",
+          "name": "竹脚中心",
+          "type": "小吃",
+          "lat": 1.3065,
+          "lng": 103.8506,
+          "note": "印度与本地小贩美食、市场。",
+          "hours": "摊位时间不同",
+          "address": "665 Buffalo Road",
+          "photoTip": "市场色彩丰富，注意摊贩和顾客隐私。",
+          "images": [
+            "./assets/place-covers/sg_tekka.svg"
+          ],
+          "image": "./assets/place-covers/sg_tekka.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "竹脚中心",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_tiong",
+          "name": "中峇鲁巴刹",
+          "type": "小吃",
+          "lat": 1.2852,
+          "lng": 103.8322,
+          "note": "传统市场与熟食中心。",
+          "hours": "摊位时间不同",
+          "address": "30 Seng Poh Road",
+          "photoTip": "周边装饰艺术风格住宅适合街拍。",
+          "images": [
+            "./assets/place-covers/sg_tiong.svg"
+          ],
+          "image": "./assets/place-covers/sg_tiong.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "中峇鲁巴刹",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_jewel",
+          "name": "星耀樟宜雨漩涡",
+          "type": "景点",
+          "lat": 1.3602,
+          "lng": 103.9897,
+          "note": "机场室内瀑布与花园。",
+          "hours": "开放时间需复核",
+          "address": "78 Airport Boulevard",
+          "photoTip": "高层环廊拍瀑布全景，夜间灯光更明显。",
+          "images": [
+            "./assets/place-covers/sg_jewel.svg"
+          ],
+          "image": "./assets/place-covers/sg_jewel.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "星耀樟宜雨漩涡",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_changi",
+          "name": "新加坡樟宜机场",
+          "type": "机场",
+          "lat": 1.3644,
+          "lng": 103.9915,
+          "note": "国际航空枢纽，可与星耀樟宜一并游览。",
+          "hours": "航班与航站楼信息需复核",
+          "address": "Airport Boulevard",
+          "photoTip": "控制塔、航站楼与雨漩涡适合作为旅行开场照片。",
+          "images": [
+            "./assets/place-covers/sg_changi.svg"
+          ],
+          "image": "./assets/place-covers/sg_changi.svg",
+          "emoji": "✈️",
+          "tags": [],
+          "photoQuery": "Singapore Changi Airport",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sg_raffleshotel",
+          "name": "莱佛士酒店",
+          "type": "酒店",
+          "lat": 1.2949,
+          "lng": 103.8545,
+          "note": "新加坡历史酒店与殖民时期建筑地标。",
+          "hours": "公共区域开放情况需复核",
+          "address": "1 Beach Road",
+          "photoTip": "白色拱廊、庭院与棕榈树适合建筑摄影。",
+          "images": [
+            "./assets/place-covers/sg_raffleshotel.svg"
+          ],
+          "image": "./assets/place-covers/sg_raffleshotel.svg",
+          "emoji": "🏨",
+          "tags": [],
+          "photoQuery": "Raffles Hotel Singapore",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        }
+      ],
+      "routePlans": [
+        {
+          "id": "route_1",
+          "name": "线路 1",
+          "route": [],
+          "segments": {}
+        }
+      ],
+      "activeRouteId": "route_1"
+    },
+    "shenzhen": {
+      "name": "深圳",
+      "center": [
+        22.5435,
+        114.0579
+      ],
+      "zoom": 12,
+      "summary": "现代城市地标、滨海公园、创意街区、古城与深圳美食地点库。",
+      "coord": "gcj02",
+      "places": [
+        {
+          "id": "sz_civic",
+          "name": "深圳市民中心",
+          "type": "景点",
+          "lat": 22.5431,
+          "lng": 114.0579,
+          "note": "深圳中心区城市地标。",
+          "hours": "外部全天",
+          "address": "福中三路",
+          "photoTip": "中轴线、屋顶和夜间灯光构图。",
+          "images": [
+            "./assets/place-covers/sz_civic.svg"
+          ],
+          "image": "./assets/place-covers/sz_civic.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "深圳市民中心",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_lianhua",
+          "name": "莲花山公园",
+          "type": "公园",
+          "lat": 22.5537,
+          "lng": 114.0596,
+          "note": "登高俯瞰福田中心区。",
+          "hours": "开放时间需复核",
+          "address": "红荔路6030号",
+          "photoTip": "山顶广场正对市民中心中轴线。",
+          "images": [
+            "./assets/place-covers/sz_lianhua.svg"
+          ],
+          "image": "./assets/place-covers/sz_lianhua.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "莲花山公园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_gangxia",
+          "name": "岗厦北地铁站“深圳之眼”",
+          "type": "拍照机位",
+          "lat": 22.5386,
+          "lng": 114.066,
+          "note": "大型地下中庭与几何天花。",
+          "hours": "地铁运营时间内",
+          "address": "岗厦北站",
+          "photoTip": "使用超广角居中拍摄，避开通勤高峰。",
+          "images": [
+            "./assets/place-covers/sz_gangxia.svg"
+          ],
+          "image": "./assets/place-covers/sz_gangxia.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "岗厦北地铁站“深圳之眼”",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_pafc",
+          "name": "平安金融中心云际观光层",
+          "type": "景点",
+          "lat": 22.5364,
+          "lng": 114.0501,
+          "note": "高空城市观景候选。",
+          "hours": "开放与票务需复核",
+          "address": "益田路5033号",
+          "photoTip": "晴天拍城市网格，夜间拍灯光。",
+          "images": [
+            "./assets/place-covers/sz_pafc.svg"
+          ],
+          "image": "./assets/place-covers/sz_pafc.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "平安金融中心云际观光层",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_huaqiang",
+          "name": "华强北科技街区",
+          "type": "购物",
+          "lat": 22.5456,
+          "lng": 114.0859,
+          "note": "电子市场、商业街与城市街拍。",
+          "hours": "商场时间不同",
+          "address": "华强北路",
+          "photoTip": "夜晚招牌、天桥和人流适合城市街拍。",
+          "images": [
+            "./assets/place-covers/sz_huaqiang.svg"
+          ],
+          "image": "./assets/place-covers/sz_huaqiang.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "华强北科技街区",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_dongmen",
+          "name": "东门老街",
+          "type": "小吃",
+          "lat": 22.544,
+          "lng": 114.1186,
+          "note": "步行街、小吃和老深圳商业氛围。",
+          "hours": "店铺时间不同",
+          "address": "解放路一带",
+          "photoTip": "夜间街牌与人流构图。",
+          "images": [
+            "./assets/place-covers/sz_dongmen.svg"
+          ],
+          "image": "./assets/place-covers/sz_dongmen.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "东门老街",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_luohu",
+          "name": "罗湖口岸",
+          "type": "交通",
+          "lat": 22.5319,
+          "lng": 114.1176,
+          "note": "深港往返交通节点。",
+          "hours": "通关时间需复核",
+          "address": "人民南路",
+          "photoTip": "仅作交通节点。",
+          "images": [
+            "./assets/place-covers/sz_luohu.svg"
+          ],
+          "image": "./assets/place-covers/sz_luohu.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "罗湖口岸",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false,
+          "originalType": "交通站点"
+        },
+        {
+          "id": "sz_dafen",
+          "name": "大芬油画村",
+          "type": "景点",
+          "lat": 22.6264,
+          "lng": 114.1399,
+          "note": "油画产业、工作室与艺术街区。",
+          "hours": "店铺时间不同",
+          "address": "布吉街道大芬社区",
+          "photoTip": "画框巷道、工作室和色彩墙面。",
+          "images": [
+            "./assets/place-covers/sz_dafen.svg"
+          ],
+          "image": "./assets/place-covers/sz_dafen.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "大芬油画村",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_gankeng",
+          "name": "甘坑古镇",
+          "type": "景点",
+          "lat": 22.6574,
+          "lng": 114.1325,
+          "note": "客家建筑、巷道与夜景。",
+          "hours": "开放时间需复核",
+          "address": "甘李路18号",
+          "photoTip": "夜间灯笼和古建筑层次。",
+          "images": [
+            "./assets/place-covers/sz_gankeng.svg"
+          ],
+          "image": "./assets/place-covers/sz_gankeng.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "甘坑古镇",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_octloft",
+          "name": "华侨城创意文化园",
+          "type": "景点",
+          "lat": 22.5387,
+          "lng": 113.9874,
+          "note": "旧工业建筑、设计店与艺术空间。",
+          "hours": "店铺时间不同",
+          "address": "锦绣北街2号",
+          "photoTip": "红砖、涂鸦和工业风街拍。",
+          "images": [
+            "./assets/place-covers/sz_octloft.svg"
+          ],
+          "image": "./assets/place-covers/sz_octloft.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "华侨城创意文化园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_hexiangning",
+          "name": "何香凝美术馆",
+          "type": "博物馆",
+          "lat": 22.5359,
+          "lng": 113.9812,
+          "note": "中国美术馆与华侨城文化节点。",
+          "hours": "开放与休馆日需复核",
+          "address": "深南大道9013号",
+          "photoTip": "建筑立面和室内展览。",
+          "images": [
+            "./assets/place-covers/sz_hexiangning.svg"
+          ],
+          "image": "./assets/place-covers/sz_hexiangning.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "何香凝美术馆",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_nantou",
+          "name": "南头古城",
+          "type": "景点",
+          "lat": 22.5407,
+          "lng": 113.9232,
+          "note": "历史街区、展览、餐饮与新旧建筑混合。",
+          "hours": "街区全天",
+          "address": "南山大道与深南大道交汇处",
+          "photoTip": "城门、骑楼、窄巷和夜景。",
+          "images": [
+            "./assets/place-covers/sz_nantou.svg"
+          ],
+          "image": "./assets/place-covers/sz_nantou.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "南头古城",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_talent",
+          "name": "人才公园",
+          "type": "公园",
+          "lat": 22.5155,
+          "lng": 113.9427,
+          "note": "后海天际线与滨水步道。",
+          "hours": "开放时间需复核",
+          "address": "科苑南路3329号",
+          "photoTip": "春笋大厦、湖面倒影和日落。",
+          "images": [
+            "./assets/place-covers/sz_talent.svg"
+          ],
+          "image": "./assets/place-covers/sz_talent.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "人才公园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_sunrise",
+          "name": "深圳湾公园日出剧场",
+          "type": "拍照机位",
+          "lat": 22.4963,
+          "lng": 113.9365,
+          "note": "海岸线、日出与跨海城市景观。",
+          "hours": "开放时间需复核",
+          "address": "深圳湾公园",
+          "photoTip": "日出前到达；长焦拍城市与海鸟。",
+          "images": [
+            "./assets/place-covers/sz_sunrise.svg"
+          ],
+          "image": "./assets/place-covers/sz_sunrise.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "深圳湾公园日出剧场",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_seaworld",
+          "name": "蛇口海上世界",
+          "type": "拍照机位",
+          "lat": 22.482,
+          "lng": 113.9159,
+          "note": "明华轮、商业街与夜间灯光。",
+          "hours": "店铺时间不同",
+          "address": "望海路1128号",
+          "photoTip": "广场水景与明华轮夜景。",
+          "images": [
+            "./assets/place-covers/sz_seaworld.svg"
+          ],
+          "image": "./assets/place-covers/sz_seaworld.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "蛇口海上世界",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false,
+          "originalType": "夜景"
+        },
+        {
+          "id": "sz_happyharbor",
+          "name": "欢乐港湾摩天轮",
+          "type": "拍照机位",
+          "lat": 22.555,
+          "lng": 113.887,
+          "note": "滨海摩天轮和城市商业区。",
+          "hours": "开放与票务需复核",
+          "address": "宝兴路8号",
+          "photoTip": "日落后拍摩天轮倒影和灯光。",
+          "images": [
+            "./assets/place-covers/sz_happyharbor.svg"
+          ],
+          "image": "./assets/place-covers/sz_happyharbor.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "欢乐港湾摩天轮",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_baheri",
+          "name": "八合里牛肉火锅（福田候选）",
+          "type": "餐厅",
+          "lat": 22.5397,
+          "lng": 114.0491,
+          "note": "潮汕牛肉火锅餐厅候选，具体分店可修改。",
+          "hours": "营业时间需复核",
+          "address": "福田中心区",
+          "photoTip": "以用餐为主。",
+          "images": [
+            "./assets/place-covers/sz_baheri.svg"
+          ],
+          "image": "./assets/place-covers/sz_baheri.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "八合里牛肉火锅（福田候选）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_runyuan",
+          "name": "润园四季椰子鸡（车公庙候选）",
+          "type": "餐厅",
+          "lat": 22.5325,
+          "lng": 114.0215,
+          "note": "深圳代表性椰子鸡餐厅候选，具体分店可修改。",
+          "hours": "营业时间需复核",
+          "address": "车公庙一带",
+          "photoTip": "以用餐为主。",
+          "images": [
+            "./assets/place-covers/sz_runyuan.svg"
+          ],
+          "image": "./assets/place-covers/sz_runyuan.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "润园四季椰子鸡（车公庙候选）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_northstation",
+          "name": "深圳北站",
+          "type": "高铁站",
+          "lat": 22.6097,
+          "lng": 114.0296,
+          "note": "深圳重要高铁枢纽，连接香港与内地主要城市。",
+          "hours": "车次与开放时间需复核",
+          "address": "致远中路28号",
+          "photoTip": "站房大跨度屋顶、广场与列车进站画面。",
+          "images": [
+            "./assets/place-covers/sz_northstation.svg"
+          ],
+          "image": "./assets/place-covers/sz_northstation.svg",
+          "emoji": "🚄",
+          "tags": [],
+          "photoQuery": "Shenzhen North railway station",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "sz_airport",
+          "name": "深圳宝安国际机场",
+          "type": "机场",
+          "lat": 22.6393,
+          "lng": 113.8107,
+          "note": "深圳主要国际机场，以流线型航站楼建筑著称。",
+          "hours": "航班与航站楼信息需复核",
+          "address": "机场南路",
+          "photoTip": "航站楼蜂窝天花和候机区适合建筑摄影。",
+          "images": [
+            "./assets/place-covers/sz_airport.svg"
+          ],
+          "image": "./assets/place-covers/sz_airport.svg",
+          "emoji": "✈️",
+          "tags": [],
+          "photoQuery": "Shenzhen Bao'an International Airport",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        }
+      ],
+      "routePlans": [
+        {
+          "id": "route_1",
+          "name": "线路 1",
+          "route": [],
+          "segments": {}
+        }
+      ],
+      "activeRouteId": "route_1"
+    },
+    "macau": {
+      "name": "澳门",
+      "center": [
+        22.1838,
+        113.5455
+      ],
+      "zoom": 13,
+      "summary": "历史城区、氹仔葡韵、路氹夜景、葡挞与澳门小吃地点库。",
+      "coord": "gcj02",
+      "places": [
+        {
+          "id": "mo_ruins",
+          "name": "大三巴牌坊",
+          "type": "景点",
+          "lat": 22.1975,
+          "lng": 113.5407,
+          "note": "澳门历史城区代表性世界遗产。",
+          "hours": "开放时间需复核",
+          "address": "耶稣会纪念广场",
+          "photoTip": "清晨拍正面，侧巷可避开人群。",
+          "images": [
+            "./assets/place-covers/mo_ruins.svg"
+          ],
+          "image": "./assets/place-covers/mo_ruins.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "大三巴牌坊",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_love",
+          "name": "恋爱巷",
+          "type": "拍照机位",
+          "lat": 22.1973,
+          "lng": 113.5399,
+          "note": "彩色葡式建筑与大三巴侧面视角。",
+          "hours": "全天",
+          "address": "恋爱巷",
+          "photoTip": "巷口向大三巴方向拍摄。",
+          "images": [
+            "./assets/place-covers/mo_love.svg"
+          ],
+          "image": "./assets/place-covers/mo_love.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "恋爱巷",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_fort",
+          "name": "大炮台",
+          "type": "景点",
+          "lat": 22.197,
+          "lng": 113.5422,
+          "note": "历史炮台与澳门半岛城市视角。",
+          "hours": "开放时间需复核",
+          "address": "大炮台斜巷",
+          "photoTip": "城墙、炮台与新葡京同框。",
+          "images": [
+            "./assets/place-covers/mo_fort.svg"
+          ],
+          "image": "./assets/place-covers/mo_fort.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "大炮台",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_senado",
+          "name": "议事亭前地",
+          "type": "景点",
+          "lat": 22.1936,
+          "lng": 113.5395,
+          "note": "葡式波浪地砖与历史建筑广场。",
+          "hours": "全天",
+          "address": "新马路",
+          "photoTip": "清晨拍广场对称构图。",
+          "images": [
+            "./assets/place-covers/mo_senado.svg"
+          ],
+          "image": "./assets/place-covers/mo_senado.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "议事亭前地",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_dominic",
+          "name": "玫瑰圣母堂",
+          "type": "景点",
+          "lat": 22.1942,
+          "lng": 113.5408,
+          "note": "黄色巴洛克风格教堂。",
+          "hours": "开放时间需复核",
+          "address": "板樟堂前地",
+          "photoTip": "从前地拍完整黄色立面。",
+          "images": [
+            "./assets/place-covers/mo_dominic.svg"
+          ],
+          "image": "./assets/place-covers/mo_dominic.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "玫瑰圣母堂",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_margaret",
+          "name": "玛嘉烈蛋挞店",
+          "type": "小吃",
+          "lat": 22.1915,
+          "lng": 113.5435,
+          "note": "葡式蛋挞候选。",
+          "hours": "营业与休息日需复核",
+          "address": "马统领街金利来大厦地下",
+          "photoTip": "店面巷道较窄，以用餐为主。",
+          "images": [
+            "./assets/place-covers/mo_margaret.svg"
+          ],
+          "image": "./assets/place-covers/mo_margaret.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "玛嘉烈蛋挞店",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_wongchi",
+          "name": "黄枝记粥面（议事亭前地）",
+          "type": "餐厅",
+          "lat": 22.194,
+          "lng": 113.5405,
+          "note": "竹升面与粥品候选。",
+          "hours": "营业时间需复核",
+          "address": "议事亭前地17号",
+          "photoTip": "以用餐为主。",
+          "images": [
+            "./assets/place-covers/mo_wongchi.svg"
+          ],
+          "image": "./assets/place-covers/mo_wongchi.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "黄枝记粥面（议事亭前地）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_ama",
+          "name": "妈阁庙",
+          "type": "景点",
+          "lat": 22.186,
+          "lng": 113.531,
+          "note": "澳门重要历史与宗教建筑。",
+          "hours": "开放时间需复核",
+          "address": "妈阁庙前地",
+          "photoTip": "石阶、香火与庙宇层次。",
+          "images": [
+            "./assets/place-covers/mo_ama.svg"
+          ],
+          "image": "./assets/place-covers/mo_ama.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "妈阁庙",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_tower",
+          "name": "澳门旅游塔",
+          "type": "景点",
+          "lat": 22.18,
+          "lng": 113.536,
+          "note": "高空观景与极限体验地点。",
+          "hours": "开放与票务需复核",
+          "address": "观光塔前地",
+          "photoTip": "南湾湖与塔身构图。",
+          "images": [
+            "./assets/place-covers/mo_tower.svg"
+          ],
+          "image": "./assets/place-covers/mo_tower.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "澳门旅游塔",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_guia",
+          "name": "东望洋灯塔",
+          "type": "拍照机位",
+          "lat": 22.197,
+          "lng": 113.549,
+          "note": "灯塔、教堂与澳门半岛高点。",
+          "hours": "开放时间需复核",
+          "address": "东望洋山",
+          "photoTip": "白色灯塔与城市天际线。",
+          "images": [
+            "./assets/place-covers/mo_guia.svg"
+          ],
+          "image": "./assets/place-covers/mo_guia.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "东望洋灯塔",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_fisherman",
+          "name": "澳门渔人码头",
+          "type": "拍照机位",
+          "lat": 22.1982,
+          "lng": 113.5591,
+          "note": "仿欧式建筑、海边与夜景。",
+          "hours": "街区开放时间需复核",
+          "address": "友谊大马路",
+          "photoTip": "罗马广场和海边建筑适合广角。",
+          "images": [
+            "./assets/place-covers/mo_fisherman.svg"
+          ],
+          "image": "./assets/place-covers/mo_fisherman.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "澳门渔人码头",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_guanyin",
+          "name": "观音像海滨",
+          "type": "拍照机位",
+          "lat": 22.1908,
+          "lng": 113.5582,
+          "note": "海滨步道与澳门新城区视角。",
+          "hours": "全天",
+          "address": "宋玉生广场附近",
+          "photoTip": "长焦拍观音像与城市建筑。",
+          "images": [
+            "./assets/place-covers/mo_guanyin.svg"
+          ],
+          "image": "./assets/place-covers/mo_guanyin.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "观音像海滨",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_cunha",
+          "name": "官也街",
+          "type": "小吃",
+          "lat": 22.1535,
+          "lng": 113.5553,
+          "note": "手信、甜品和传统餐饮聚集的步行街。",
+          "hours": "店铺时间不同",
+          "address": "氹仔官也街",
+          "photoTip": "侧巷比主街更适合街拍。",
+          "images": [
+            "./assets/place-covers/mo_cunha.svg"
+          ],
+          "image": "./assets/place-covers/mo_cunha.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "官也街",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_taipahouses",
+          "name": "龙环葡韵",
+          "type": "景点",
+          "lat": 22.1523,
+          "lng": 113.5605,
+          "note": "绿色葡式住宅与湿地景观。",
+          "hours": "开放时间需复核",
+          "address": "海边马路",
+          "photoTip": "绿色建筑、嘉模教堂和日落。",
+          "images": [
+            "./assets/place-covers/mo_taipahouses.svg"
+          ],
+          "image": "./assets/place-covers/mo_taipahouses.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "龙环葡韵",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_mokyikei",
+          "name": "莫义记",
+          "type": "小吃",
+          "lat": 22.1535,
+          "lng": 113.555,
+          "note": "木糠布甸、榴莲雪糕等甜品候选。",
+          "hours": "营业时间需复核",
+          "address": "官也街",
+          "photoTip": "以用餐为主。",
+          "images": [
+            "./assets/place-covers/mo_mokyikei.svg"
+          ],
+          "image": "./assets/place-covers/mo_mokyikei.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "莫义记",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_venetian",
+          "name": "澳门威尼斯人",
+          "type": "景点",
+          "lat": 22.1485,
+          "lng": 113.5615,
+          "note": "室内运河与大型度假区建筑。",
+          "hours": "开放时间需复核",
+          "address": "路氹金光大道",
+          "photoTip": "室内拱廊和夜间外立面。",
+          "images": [
+            "./assets/place-covers/mo_venetian.svg"
+          ],
+          "image": "./assets/place-covers/mo_venetian.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "澳门威尼斯人",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_londoner",
+          "name": "澳门伦敦人外景",
+          "type": "拍照机位",
+          "lat": 22.1464,
+          "lng": 113.566,
+          "note": "欧式建筑群与夜间灯光。",
+          "hours": "外部全天",
+          "address": "路氹金光大道",
+          "photoTip": "马路对面使用长焦压缩建筑。",
+          "images": [
+            "./assets/place-covers/mo_londoner.svg"
+          ],
+          "image": "./assets/place-covers/mo_londoner.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "澳门伦敦人外景",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_lordstow",
+          "name": "安德鲁饼店（路环）",
+          "type": "小吃",
+          "lat": 22.1167,
+          "lng": 113.5519,
+          "note": "路环葡挞与慢节奏街区候选。",
+          "hours": "营业时间需复核",
+          "address": "路环市区市中心",
+          "photoTip": "可结合路环码头与彩色街屋。",
+          "images": [
+            "./assets/place-covers/mo_lordstow.svg"
+          ],
+          "image": "./assets/place-covers/mo_lordstow.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "安德鲁饼店（路环）",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_airport",
+          "name": "澳门国际机场",
+          "type": "机场",
+          "lat": 22.1496,
+          "lng": 113.5916,
+          "note": "澳门主要航空口岸，位于氹仔东侧。",
+          "hours": "航班与航站楼信息需复核",
+          "address": "伟龙马路",
+          "photoTip": "可拍航站楼、跑道方向与海岸景观。",
+          "images": [
+            "./assets/place-covers/mo_airport.svg"
+          ],
+          "image": "./assets/place-covers/mo_airport.svg",
+          "emoji": "✈️",
+          "tags": [],
+          "photoQuery": "Macau International Airport",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "mo_grandlisboa",
+          "name": "澳门新葡京酒店",
+          "type": "酒店",
+          "lat": 22.1896,
+          "lng": 113.5439,
+          "note": "澳门半岛辨识度极高的城市酒店地标。",
+          "hours": "公共区域开放情况需复核",
+          "address": "葡京路",
+          "photoTip": "从南湾湖或议事亭方向拍摄金色建筑轮廓。",
+          "images": [
+            "./assets/place-covers/mo_grandlisboa.svg"
+          ],
+          "image": "./assets/place-covers/mo_grandlisboa.svg",
+          "emoji": "🏨",
+          "tags": [],
+          "photoQuery": "Grand Lisboa Macau",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        }
+      ],
+      "routePlans": [
+        {
+          "id": "route_1",
+          "name": "线路 1",
+          "route": [],
+          "segments": {}
+        }
+      ],
+      "activeRouteId": "route_1"
+    },
+    "kualalumpur": {
+      "name": "吉隆坡",
+      "center": [
+        3.1518,
+        101.7047
+      ],
+      "zoom": 13,
+      "summary": "双子塔、历史城区、宗教建筑、多元美食与城市夜景地点库。",
+      "coord": "wgs84",
+      "places": [
+        {
+          "id": "kl_petronas",
+          "name": "国家石油双子塔",
+          "type": "景点",
+          "lat": 3.1579,
+          "lng": 101.7117,
+          "note": "吉隆坡代表性城市地标。",
+          "hours": "开放与票务需复核",
+          "address": "Kuala Lumpur City Centre",
+          "photoTip": "KLCC公园、喷水池和正门广角机位。",
+          "images": [
+            "./assets/place-covers/kl_petronas.svg"
+          ],
+          "image": "./assets/place-covers/kl_petronas.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "国家石油双子塔",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_klccpark",
+          "name": "KLCC公园湖畔",
+          "type": "拍照机位",
+          "lat": 3.1536,
+          "lng": 101.7134,
+          "note": "双子塔全景与湖面倒影。",
+          "hours": "公园时间需复核",
+          "address": "Jalan Ampang",
+          "photoTip": "傍晚由湖对岸拍双塔全景。",
+          "images": [
+            "./assets/place-covers/kl_klccpark.svg"
+          ],
+          "image": "./assets/place-covers/kl_klccpark.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "KLCC公园湖畔",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_saloma",
+          "name": "莎罗马行人天桥",
+          "type": "拍照机位",
+          "lat": 3.1627,
+          "lng": 101.7079,
+          "note": "彩色灯光桥与双子塔视角。",
+          "hours": "开放时间需复核",
+          "address": "Kampung Baru",
+          "photoTip": "蓝调时刻拍桥体和双塔。",
+          "images": [
+            "./assets/place-covers/kl_saloma.svg"
+          ],
+          "image": "./assets/place-covers/kl_saloma.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "莎罗马行人天桥",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_kltower",
+          "name": "吉隆坡塔",
+          "type": "景点",
+          "lat": 3.1528,
+          "lng": 101.7037,
+          "note": "高空城市观景地点。",
+          "hours": "开放与票务需复核",
+          "address": "Jalan Puncak",
+          "photoTip": "观景台拍双子塔和城市全景。",
+          "images": [
+            "./assets/place-covers/kl_kltower.svg"
+          ],
+          "image": "./assets/place-covers/kl_kltower.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "吉隆坡塔",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_merdeka",
+          "name": "独立广场",
+          "type": "景点",
+          "lat": 3.1478,
+          "lng": 101.6937,
+          "note": "马来西亚独立历史地标与开阔草坪。",
+          "hours": "全天",
+          "address": "Jalan Raja",
+          "photoTip": "低机位拍旗杆与历史建筑。",
+          "images": [
+            "./assets/place-covers/kl_merdeka.svg"
+          ],
+          "image": "./assets/place-covers/kl_merdeka.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "独立广场",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_sultan",
+          "name": "苏丹阿都沙末大厦",
+          "type": "拍照机位",
+          "lat": 3.1486,
+          "lng": 101.6944,
+          "note": "摩尔式历史建筑。",
+          "hours": "外观全天",
+          "address": "Jalan Raja",
+          "photoTip": "从独立广场拍完整立面，夜间亮灯。",
+          "images": [
+            "./assets/place-covers/kl_sultan.svg"
+          ],
+          "image": "./assets/place-covers/kl_sultan.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "苏丹阿都沙末大厦",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_centralmarket",
+          "name": "中央艺术坊",
+          "type": "购物",
+          "lat": 3.1458,
+          "lng": 101.6953,
+          "note": "手工艺、纪念品与本地文化市场。",
+          "hours": "开放时间需复核",
+          "address": "Jalan Hang Kasturi",
+          "photoTip": "蓝色建筑外立面与内部摊位。",
+          "images": [
+            "./assets/place-covers/kl_centralmarket.svg"
+          ],
+          "image": "./assets/place-covers/kl_centralmarket.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "中央艺术坊",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_petaling",
+          "name": "茨厂街",
+          "type": "小吃",
+          "lat": 3.1441,
+          "lng": 101.698,
+          "note": "吉隆坡唐人街市场与街头美食。",
+          "hours": "店铺时间不同",
+          "address": "Petaling Street",
+          "photoTip": "红色牌楼、市场纵深和夜间摊档。",
+          "images": [
+            "./assets/place-covers/kl_petaling.svg"
+          ],
+          "image": "./assets/place-covers/kl_petaling.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "茨厂街",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_kwai",
+          "name": "鬼仔巷",
+          "type": "拍照机位",
+          "lat": 3.1433,
+          "lng": 101.6974,
+          "note": "壁画、灯笼与旧街区改造空间。",
+          "hours": "开放时间需复核",
+          "address": "Lorong Panggung",
+          "photoTip": "清晨拍壁画和灯笼，避开人群。",
+          "images": [
+            "./assets/place-covers/kl_kwai.svg"
+          ],
+          "image": "./assets/place-covers/kl_kwai.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "鬼仔巷",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_merchant",
+          "name": "Merchant's Lane",
+          "type": "餐厅",
+          "lat": 3.1442,
+          "lng": 101.6975,
+          "note": "南洋风格咖啡馆和早午餐候选。",
+          "hours": "营业时间需复核",
+          "address": "Jalan Petaling",
+          "photoTip": "室内绿植与复古装饰。",
+          "images": [
+            "./assets/place-covers/kl_merchant.svg"
+          ],
+          "image": "./assets/place-covers/kl_merchant.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "Merchant's Lane",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_mosque",
+          "name": "国家清真寺",
+          "type": "景点",
+          "lat": 3.1419,
+          "lng": 101.6914,
+          "note": "现代伊斯兰建筑地标。",
+          "hours": "参观时间与着装需复核",
+          "address": "Jalan Perdana",
+          "photoTip": "蓝色星形屋顶和柱廊。",
+          "images": [
+            "./assets/place-covers/kl_mosque.svg"
+          ],
+          "image": "./assets/place-covers/kl_mosque.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "国家清真寺",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_islamicmuseum",
+          "name": "马来西亚伊斯兰艺术博物馆",
+          "type": "博物馆",
+          "lat": 3.1414,
+          "lng": 101.6898,
+          "note": "伊斯兰艺术、建筑和穹顶。",
+          "hours": "开放与票务需复核",
+          "address": "Jalan Lembah Perdana",
+          "photoTip": "白色建筑、蓝色穹顶与室内对称构图。",
+          "images": [
+            "./assets/place-covers/kl_islamicmuseum.svg"
+          ],
+          "image": "./assets/place-covers/kl_islamicmuseum.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "马来西亚伊斯兰艺术博物馆",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_theanhou",
+          "name": "天后宫",
+          "type": "景点",
+          "lat": 3.1217,
+          "lng": 101.687,
+          "note": "华人庙宇与城市高处视角。",
+          "hours": "开放时间需复核",
+          "address": "65 Persiaran Endah",
+          "photoTip": "红灯笼、屋檐与城市背景。",
+          "images": [
+            "./assets/place-covers/kl_theanhou.svg"
+          ],
+          "image": "./assets/place-covers/kl_theanhou.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "天后宫",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_batu",
+          "name": "黑风洞",
+          "type": "景点",
+          "lat": 3.2379,
+          "lng": 101.684,
+          "note": "彩色阶梯、金色神像与石灰岩洞穴。",
+          "hours": "开放时间需复核",
+          "address": "Gombak",
+          "photoTip": "清晨拍彩色阶梯；注意猴子与着装。",
+          "images": [
+            "./assets/place-covers/kl_batu.svg"
+          ],
+          "image": "./assets/place-covers/kl_batu.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "黑风洞",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_alor",
+          "name": "阿罗街夜市",
+          "type": "小吃",
+          "lat": 3.1465,
+          "lng": 101.708,
+          "note": "晚间街头餐饮集中地。",
+          "hours": "傍晚后活跃",
+          "address": "Jalan Alor",
+          "photoTip": "雨后招牌和摊档灯光适合夜拍。",
+          "images": [
+            "./assets/place-covers/kl_alor.svg"
+          ],
+          "image": "./assets/place-covers/kl_alor.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "阿罗街夜市",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_lot10",
+          "name": "十号胡同",
+          "type": "小吃",
+          "lat": 3.1466,
+          "lng": 101.711,
+          "note": "商场内集合多家华人传统小吃。",
+          "hours": "营业时间需复核",
+          "address": "50 Jalan Sultan Ismail",
+          "photoTip": "以用餐为主。",
+          "images": [
+            "./assets/place-covers/kl_lot10.svg"
+          ],
+          "image": "./assets/place-covers/kl_lot10.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "十号胡同",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_villagepark",
+          "name": "Village Park Restaurant",
+          "type": "餐厅",
+          "lat": 3.143,
+          "lng": 101.6273,
+          "note": "椰浆饭热门餐厅候选。",
+          "hours": "营业时间需复核",
+          "address": "Damansara Uptown",
+          "photoTip": "以用餐为主，距离市中心较远。",
+          "images": [
+            "./assets/place-covers/kl_villagepark.svg"
+          ],
+          "image": "./assets/place-covers/kl_villagepark.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "Village Park Restaurant",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_pavilion",
+          "name": "武吉免登十字路口",
+          "type": "拍照机位",
+          "lat": 3.1491,
+          "lng": 101.7132,
+          "note": "商业区人流、灯光与城市街拍。",
+          "hours": "全天",
+          "address": "Bukit Bintang",
+          "photoTip": "天桥或街角拍车流和广告屏。",
+          "images": [
+            "./assets/place-covers/kl_pavilion.svg"
+          ],
+          "image": "./assets/place-covers/kl_pavilion.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "武吉免登十字路口",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_trx",
+          "name": "TRX Exchange屋顶公园",
+          "type": "公园",
+          "lat": 3.1418,
+          "lng": 101.7188,
+          "note": "现代商业区、屋顶绿地和城市建筑。",
+          "hours": "开放时间需复核",
+          "address": "Tun Razak Exchange",
+          "photoTip": "傍晚拍现代天际线和花园。",
+          "images": [
+            "./assets/place-covers/kl_trx.svg"
+          ],
+          "image": "./assets/place-covers/kl_trx.svg",
+          "emoji": "",
+          "tags": [],
+          "photoQuery": "TRX Exchange屋顶公园",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        },
+        {
+          "id": "kl_klia",
+          "name": "吉隆坡国际机场",
+          "type": "机场",
+          "lat": 2.7456,
+          "lng": 101.7072,
+          "note": "马来西亚主要国际航空枢纽。",
+          "hours": "航班与航站楼信息需复核",
+          "address": "Sepang, Selangor",
+          "photoTip": "航站楼屋顶、机场快线与起降飞机构图。",
+          "images": [
+            "./assets/place-covers/kl_klia.svg"
+          ],
+          "image": "./assets/place-covers/kl_klia.svg",
+          "emoji": "✈️",
+          "tags": [],
+          "photoQuery": "Kuala Lumpur International Airport",
+          "photoResolved": false,
+          "autoCover": true,
+          "favorite": false
+        }
+      ],
+      "routePlans": [
+        {
+          "id": "route_1",
+          "name": "线路 1",
+          "route": [],
+          "segments": {}
+        }
+      ],
+      "activeRouteId": "route_1"
+    }
+  },
+  "dataset": {
+    "totalCities": 5,
+    "placesPerCity": 20,
+    "totalPlaces": 100,
+    "photoStrategy": "local place cover + automatic Wikimedia/Wikipedia real-photo matching",
+    "generated": "2026-08-06"
+  }
+}
