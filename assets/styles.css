@@ -85,7 +85,7 @@
   opacity: 1;
 }
 
-/* Route-stop details cover the route drawer, then dismiss back to it. */
+/* Transparent click layer: outside taps return to the expanded route. */
 .route-detail-backdrop {
   position: fixed;
   z-index: 2600;
@@ -94,7 +94,7 @@
   height: 100%;
   padding: 0;
   border: 0;
-  background: rgba(18, 31, 49, 0.16);
+  background: transparent;
   cursor: default;
 }
 
