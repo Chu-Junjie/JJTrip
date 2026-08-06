@@ -132,6 +132,20 @@ body > .detail-panel.open.route-card-overlay {
     margin-top: 25px;
   }
 
+  /* Keep the normal map card the same half-screen size before and after the header is collapsed. */
+  .detail-panel.open:not(.editing):not(.route-card-overlay),
+  .detail-panel.open.route-visible:not(.editing):not(.route-card-overlay),
+  .app-shell.nav-collapsed .detail-panel.open:not(.editing):not(.route-card-overlay),
+  .app-shell.nav-collapsed .detail-panel.open.route-visible:not(.editing):not(.route-card-overlay) {
+    top: auto !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 50vh !important;
+    max-height: 50dvh !important;
+    overflow-y: auto !important;
+  }
+
   body > .detail-panel.open.route-card-overlay {
     top: auto !important;
     right: calc(10px + var(--safe-right)) !important;
