@@ -1,0 +1,180 @@
+name: Apply mascot navigation and card action layout
+
+on:
+  push:
+    paths:
+      - .github/workflows/apply-nav-mascot-card-actions.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply focused UI changes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'Missing expected block: {label}')
+              return text.replace(old, new, 1)
+
+          index_path = Path('index.html')
+          index = index_path.read_text(encoding='utf-8')
+          index = replace_once(index, '''
+  <button class="floating-mascot" id="floatingMascot" type="button" aria-label="打开旅行搭子设置">
+    <img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt="">
+    <span class="mascot-tip">点我打开设置，也可以拖动我</span>
+  </button>
+
+''', '\n', 'standalone mascot')
+          index = replace_once(index,
+              '    <button class="bottom-nav-item" type="button" data-nav="settings"><span aria-hidden="true">⚙</span><b>设置</b></button>',
+              '    <button class="bottom-nav-item mascot-nav-item" id="floatingMascot" type="button" data-nav="settings" aria-label="打开旅行搭子设置"><span class="mascot-nav-visual" aria-hidden="true"><img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt=""></span><b>设置</b></button>',
+              'settings navigation button')
+          index_path.write_text(index, encoding='utf-8')
+
+          app_path = Path('assets/app.js')
+          app = app_path.read_text(encoding='utf-8')
+          app = replace_once(app,
+              '''  function setMascotHidden(hidden, save = true) {
+    mascotHidden = Boolean(hidden);''',
+              '''  function mascotUsesBottomNavigation() {
+    return Boolean(dom.mascot?.closest(".bottom-nav"));
+  }
+
+  function setMascotHidden(hidden, save = true) {
+    if (mascotUsesBottomNavigation()) {
+      mascotHidden = false;
+      dom.mascot.classList.remove("mascot-hidden", "mascot-hidden-left", "mascot-hidden-right");
+      return;
+    }
+    mascotHidden = Boolean(hidden);''',
+              'mascot nav guard')
+          app = replace_once(app,
+              '''  function clampAndPlaceMascot(save = false) {
+    if (mascotHidden) return;''',
+              '''  function clampAndPlaceMascot(save = false) {
+    if (mascotUsesBottomNavigation() || mascotHidden) return;''',
+              'mascot placement guard')
+          app = replace_once(app,
+              '''  function bindMascotPointer() {
+    dom.mascot.addEventListener("pointerdown", event => {''',
+              '''  function bindMascotPointer() {
+    if (mascotUsesBottomNavigation()) return;
+    dom.mascot.addEventListener("pointerdown", event => {''',
+              'mascot pointer guard')
+
+          old_actions = '''      ${previewMarkup(place, info)}
+      ${isEditMode ? editDetails(place) : readOnlyDetails(place)}
+      <div class="actions detail-primary-actions">
+        <button class="btn favorite-toggle${place.favorite ? " active" : ""}" id="favoriteToggleBtn" type="button" aria-pressed="${place.favorite}">${place.favorite ? "♥ 已收藏" : "♡ 收藏地点"}</button>
+        ${inPlan ? `<span class="plan-state">已加入“${escapeHtml(activeRoutePlan().name)}”</span><button class="btn-danger" id="planToggleBtn" type="button">移出当前线路</button>` : `<button class="btn-primary" id="planToggleBtn" type="button">加入“${escapeHtml(activeRoutePlan().name)}”</button>`}
+      </div>`;'''
+          new_actions = '''      ${previewMarkup(place, info)}
+      <div class="actions detail-primary-actions detail-action-row">
+        <button class="btn favorite-toggle${place.favorite ? " active" : ""}" id="favoriteToggleBtn" type="button" aria-pressed="${place.favorite}">${place.favorite ? "♥ 已收藏" : "♡ 收藏"}</button>
+        <button class="${inPlan ? "btn-danger" : "btn-primary"}" id="planToggleBtn" type="button">${inPlan ? "移出线路" : "加入线路"}</button>
+      </div>
+      ${isEditMode ? editDetails(place) : readOnlyDetails(place)}`;'''
+          app = replace_once(app, old_actions, new_actions, 'detail action row')
+          app_path.write_text(app, encoding='utf-8')
+
+          css_path = Path('assets/styles.css')
+          css = css_path.read_text(encoding='utf-8')
+          css += '''
+
+/* v7.2 mascot replaces the settings icon and card actions sit below the image. */
+.bottom-nav {
+  overflow: visible;
+}
+
+.mascot-nav-item {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.mascot-nav-visual {
+  position: absolute;
+  z-index: 3;
+  top: -43px;
+  left: 50%;
+  display: block;
+  width: 58px;
+  height: 82px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.mascot-nav-visual::after {
+  position: absolute;
+  z-index: -1;
+  right: 7px;
+  bottom: 4px;
+  left: 7px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(31, 60, 89, 0.18);
+  filter: blur(5px);
+  content: "";
+}
+
+.mascot-nav-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 7px 8px rgba(31, 60, 89, 0.22));
+}
+
+.mascot-nav-item > b {
+  margin-top: 27px;
+}
+
+.mascot-nav-item.active .mascot-nav-visual {
+  transform: translateX(-50%) translateY(-2px) scale(1.04);
+}
+
+.detail-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin: 2px 0 15px;
+}
+
+.detail-action-row > button {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .mascot-nav-visual {
+    top: -39px;
+    width: 54px;
+    height: 77px;
+  }
+
+  .mascot-nav-item > b {
+    margin-top: 25px;
+  }
+}
+'''
+          css_path.write_text(css, encoding='utf-8')
+          PY
+          node --check assets/app.js
+      - name: Commit UI changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/app.js assets/styles.css
+          git commit -m "fix: move mascot into settings navigation"
+          git push
