@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/apply-nav-mascot-card-actions.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,76 +18,74 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
-          def replace_once(text, old, new, label):
-              if old not in text:
-                  raise SystemExit(f'Missing expected block: {label}')
-              return text.replace(old, new, 1)
+          import re
 
           index_path = Path('index.html')
           index = index_path.read_text(encoding='utf-8')
-          index = replace_once(index, '''
-  <button class="floating-mascot" id="floatingMascot" type="button" aria-label="打开旅行搭子设置">
-    <img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt="">
-    <span class="mascot-tip">点我打开设置，也可以拖动我</span>
-  </button>
-
-''', '\n', 'standalone mascot')
-          index = replace_once(index,
-              '    <button class="bottom-nav-item" type="button" data-nav="settings"><span aria-hidden="true">⚙</span><b>设置</b></button>',
-              '    <button class="bottom-nav-item mascot-nav-item" id="floatingMascot" type="button" data-nav="settings" aria-label="打开旅行搭子设置"><span class="mascot-nav-visual" aria-hidden="true"><img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt=""></span><b>设置</b></button>',
-              'settings navigation button')
+          index, removed = re.subn(
+              r'\n\s*<button class="floating-mascot" id="floatingMascot"[\s\S]*?</button>\s*\n',
+              '\n',
+              index,
+              count=1
+          )
+          if removed != 1 and 'mascot-nav-item' not in index:
+              raise SystemExit('Could not remove the standalone mascot')
+          settings_pattern = r'<button class="bottom-nav-item" type="button" data-nav="settings"><span aria-hidden="true">⚙</span><b>设置</b></button>'
+          settings_replacement = '<button class="bottom-nav-item mascot-nav-item" id="floatingMascot" type="button" data-nav="settings" aria-label="打开旅行搭子设置"><span class="mascot-nav-visual" aria-hidden="true"><img src="./assets/jjtrip-mascot-3d.png" width="487" height="900" alt=""></span><b>设置</b></button>'
+          index, changed = re.subn(settings_pattern, settings_replacement, index, count=1)
+          if changed != 1 and 'mascot-nav-item' not in index:
+              raise SystemExit('Could not replace the settings navigation icon')
           index_path.write_text(index, encoding='utf-8')
 
           app_path = Path('assets/app.js')
           app = app_path.read_text(encoding='utf-8')
-          app = replace_once(app,
-              '''  function setMascotHidden(hidden, save = true) {
-    mascotHidden = Boolean(hidden);''',
-              '''  function mascotUsesBottomNavigation() {
+          if 'function mascotUsesBottomNavigation()' not in app:
+              marker = '  function setMascotHidden(hidden, save = true) {\n'
+              if marker not in app:
+                  raise SystemExit('Mascot hidden function was not found')
+              helper = '''  function mascotUsesBottomNavigation() {
     return Boolean(dom.mascot?.closest(".bottom-nav"));
   }
 
-  function setMascotHidden(hidden, save = true) {
-    if (mascotUsesBottomNavigation()) {
-      mascotHidden = false;
-      dom.mascot.classList.remove("mascot-hidden", "mascot-hidden-left", "mascot-hidden-right");
-      return;
-    }
-    mascotHidden = Boolean(hidden);''',
-              'mascot nav guard')
-          app = replace_once(app,
-              '''  function clampAndPlaceMascot(save = false) {
-    if (mascotHidden) return;''',
-              '''  function clampAndPlaceMascot(save = false) {
-    if (mascotUsesBottomNavigation() || mascotHidden) return;''',
-              'mascot placement guard')
-          app = replace_once(app,
-              '''  function bindMascotPointer() {
-    dom.mascot.addEventListener("pointerdown", event => {''',
-              '''  function bindMascotPointer() {
-    if (mascotUsesBottomNavigation()) return;
-    dom.mascot.addEventListener("pointerdown", event => {''',
-              'mascot pointer guard')
+'''
+              app = app.replace(marker, helper + marker, 1)
 
-          old_actions = '''      ${previewMarkup(place, info)}
-      ${isEditMode ? editDetails(place) : readOnlyDetails(place)}
-      <div class="actions detail-primary-actions">
-        <button class="btn favorite-toggle${place.favorite ? " active" : ""}" id="favoriteToggleBtn" type="button" aria-pressed="${place.favorite}">${place.favorite ? "♥ 已收藏" : "♡ 收藏地点"}</button>
-        ${inPlan ? `<span class="plan-state">已加入“${escapeHtml(activeRoutePlan().name)}”</span><button class="btn-danger" id="planToggleBtn" type="button">移出当前线路</button>` : `<button class="btn-primary" id="planToggleBtn" type="button">加入“${escapeHtml(activeRoutePlan().name)}”</button>`}
-      </div>`;'''
-          new_actions = '''      ${previewMarkup(place, info)}
+          app = app.replace(
+              '  function setMascotHidden(hidden, save = true) {\n    mascotHidden = Boolean(hidden);',
+              '  function setMascotHidden(hidden, save = true) {\n    if (mascotUsesBottomNavigation()) {\n      mascotHidden = false;\n      dom.mascot.classList.remove("mascot-hidden", "mascot-hidden-left", "mascot-hidden-right");\n      return;\n    }\n    mascotHidden = Boolean(hidden);',
+              1
+          )
+          app = app.replace(
+              '  function clampAndPlaceMascot(save = false) {\n    if (mascotHidden) return;',
+              '  function clampAndPlaceMascot(save = false) {\n    if (mascotUsesBottomNavigation() || mascotHidden) return;',
+              1
+          )
+          app = app.replace(
+              '  function bindMascotPointer() {\n    dom.mascot.addEventListener("pointerdown", event => {',
+              '  function bindMascotPointer() {\n    if (mascotUsesBottomNavigation()) return;\n    dom.mascot.addEventListener("pointerdown", event => {',
+              1
+          )
+
+          detail_pattern = re.compile(
+              r'      \$\{previewMarkup\(place, info\)\}\n'
+              r'      \$\{isEditMode \? editDetails\(place\) : readOnlyDetails\(place\)\}\n'
+              r'      <div class="actions detail-primary-actions">[\s\S]*?\n      </div>`;'
+          )
+          detail_replacement = '''      ${previewMarkup(place, info)}
       <div class="actions detail-primary-actions detail-action-row">
         <button class="btn favorite-toggle${place.favorite ? " active" : ""}" id="favoriteToggleBtn" type="button" aria-pressed="${place.favorite}">${place.favorite ? "♥ 已收藏" : "♡ 收藏"}</button>
         <button class="${inPlan ? "btn-danger" : "btn-primary"}" id="planToggleBtn" type="button">${inPlan ? "移出线路" : "加入线路"}</button>
       </div>
       ${isEditMode ? editDetails(place) : readOnlyDetails(place)}`;'''
-          app = replace_once(app, old_actions, new_actions, 'detail action row')
+          app, action_changed = detail_pattern.subn(detail_replacement, app, count=1)
+          if action_changed != 1 and 'detail-action-row' not in app:
+              raise SystemExit('Could not move the detail action buttons')
           app_path.write_text(app, encoding='utf-8')
 
           css_path = Path('assets/styles.css')
           css = css_path.read_text(encoding='utf-8')
-          css += '''
+          if 'v7.2 mascot replaces the settings icon' not in css:
+              css += '''
 
 /* v7.2 mascot replaces the settings icon and card actions sit below the image. */
 .bottom-nav {
@@ -176,5 +175,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html assets/app.js assets/styles.css
+          git diff --cached --quiet && exit 0
           git commit -m "fix: move mascot into settings navigation"
           git push
