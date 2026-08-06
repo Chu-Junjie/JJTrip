@@ -1,0 +1,200 @@
+name: Trim JJTrip places
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/trim-jjtrip-places.yml
+
+permissions:
+  contents: write
+
+jobs:
+  trim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reduce each city to 18 places
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          CITY_IDS = ["hongkong", "singapore", "shenzhen", "macau", "kualalumpur"]
+          PLACE_LIMIT = 18
+          RELEASE = "20260806-places-18"
+
+          def find_matching(text, start, opening="[", closing="]"):
+              depth = 0
+              quote = None
+              escaped = False
+              for index in range(start, len(text)):
+                  char = text[index]
+                  if quote:
+                      if escaped:
+                          escaped = False
+                      elif char == "\\":
+                          escaped = True
+                      elif char == quote:
+                          quote = None
+                      continue
+                  if char in ('"', "'", "`"):
+                      quote = char
+                  elif char == opening:
+                      depth += 1
+                  elif char == closing:
+                      depth -= 1
+                      if depth == 0:
+                          return index
+              raise RuntimeError(f"No matching {closing} found")
+
+          def split_top_level_items(body):
+              items = []
+              start = 0
+              paren = bracket = brace = 0
+              quote = None
+              escaped = False
+              for index, char in enumerate(body):
+                  if quote:
+                      if escaped:
+                          escaped = False
+                      elif char == "\\":
+                          escaped = True
+                      elif char == quote:
+                          quote = None
+                      continue
+                  if char in ('"', "'", "`"):
+                      quote = char
+                  elif char == "(":
+                      paren += 1
+                  elif char == ")":
+                      paren -= 1
+                  elif char == "[":
+                      bracket += 1
+                  elif char == "]":
+                      bracket -= 1
+                  elif char == "{":
+                      brace += 1
+                  elif char == "}":
+                      brace -= 1
+                  elif char == "," and paren == bracket == brace == 0:
+                      item = body[start:index].strip()
+                      if item:
+                          items.append(item)
+                      start = index + 1
+              final = body[start:].strip()
+              if final:
+                  items.append(final)
+              return items
+
+          def city_array_bounds(html, city_id):
+              city_start = html.index(f"    {city_id}:city(")
+              array_hint = html.index(",[\n      poi(", city_start)
+              array_start = array_hint + 1
+              array_end = find_matching(html, array_start)
+              return array_start, array_end
+
+          index_path = Path("index.html")
+          html = index_path.read_text(encoding="utf-8")
+          original_counts = {}
+          for city_id in CITY_IDS:
+              array_start, array_end = city_array_bounds(html, city_id)
+              items = split_top_level_items(html[array_start + 1:array_end])
+              original_counts[city_id] = len(items)
+              if len(items) < PLACE_LIMIT:
+                  raise SystemExit(f"{city_id} only has {len(items)} places")
+              kept = items[:PLACE_LIMIT]
+              replacement = "[\n      " + ",\n      ".join(kept) + "\n    ]"
+              html = html[:array_start] + replacement + html[array_end + 1:]
+
+          html = html.replace("20260806-performance-2", RELEASE)
+          index_path.write_text(html, encoding="utf-8")
+
+          app_path = Path("assets/app.js")
+          app = app_path.read_text(encoding="utf-8")
+          if app.count("result.meta.version = 9;") != 1:
+              raise SystemExit("Unexpected database version declaration")
+          app = app.replace("result.meta.version = 9;", "result.meta.version = 10;", 1)
+
+          city_loop = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
+              result.cities[cityId] = normaliseCity(cityId, cityData);
+            }
+
+          '''
+          migration = '''    for (const [cityId, cityData] of Object.entries(result.cities)) {
+              result.cities[cityId] = normaliseCity(cityId, cityData);
+            }
+
+            if (previousDataVersion < 10) {
+              for (const cityId of FIXED_CITY_IDS) {
+                const cityData = result.cities[cityId];
+                if (!cityData) continue;
+                cityData.places = cityData.places.slice(0, 18);
+                const validIds = new Set(cityData.places.map(place => place.id));
+                for (const routePlan of cityData.routePlans) {
+                  routePlan.route = routePlan.route.filter(id => validIds.has(id));
+                  routePlan.segments = Object.fromEntries(Object.entries(routePlan.segments).filter(([key]) => {
+                    const [startId, endId] = key.split("__");
+                    return validIds.has(startId) && validIds.has(endId);
+                  }));
+                }
+                const activePlan = cityData.routePlans.find(plan => plan.id === cityData.activeRouteId) || cityData.routePlans[0];
+                cityData.route = activePlan.route;
+                cityData.segments = activePlan.segments;
+              }
+            }
+
+          '''
+          if app.count(city_loop) != 1:
+              raise SystemExit("Could not locate database city normalisation loop")
+          app = app.replace(city_loop, migration, 1)
+
+          load_block = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
+              return normaliseDatabase(JSON.parse(raw));
+          '''
+          load_replacement = '''      if (!raw) return normaliseDatabase(deepClone(SEED));
+              const parsed = JSON.parse(raw);
+              const previousDataVersion = Number(parsed?.meta?.version) || 0;
+              const database = normaliseDatabase(parsed);
+              if (previousDataVersion < 10) {
+                try { localStorage.setItem(STORAGE_KEY, serialiseDatabase(database)); } catch (_) {}
+              }
+              return database;
+          '''
+          if app.count(load_block) != 1:
+              raise SystemExit("Could not locate loadDatabase return block")
+          app = app.replace(load_block, load_replacement, 1)
+          app_path.write_text(app, encoding="utf-8")
+
+          # Verify all seed city arrays now contain exactly 18 entries.
+          checked_html = index_path.read_text(encoding="utf-8")
+          for city_id in CITY_IDS:
+              start, end = city_array_bounds(checked_html, city_id)
+              count = len(split_top_level_items(checked_html[start + 1:end]))
+              if count != PLACE_LIMIT:
+                  raise SystemExit(f"{city_id} has {count} places after trimming")
+
+          print("Original place counts:", original_counts)
+          Path(".github/workflows/trim-jjtrip-places.yml").unlink()
+          PY
+
+      - name: Validate application
+        shell: bash
+        run: |
+          node --check assets/app.js
+          grep -q 'result.meta.version = 10' assets/app.js
+          grep -q '20260806-places-18' index.html
+
+      - name: Commit reduced data set
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "perf: limit each JJTrip city to 18 places"
+          git push origin HEAD:main
