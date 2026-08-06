@@ -32,3 +32,5 @@ jobs:
           git add assets/styles.css
           git commit -m "fix: prevent mobile search auto zoom"
           git push
+
+# Re-saved to trigger the one-time patch.
